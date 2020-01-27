@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+
+import sys
+
+from rqt_mypkg.drive_selector import DriveSelector
+from rqt_gui.main import Main
+
+plugin = 'drive_selector'
+main = Main(filename=plugin)
+sys.exit(main.main(standalone=plugin))

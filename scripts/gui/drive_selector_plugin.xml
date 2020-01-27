@@ -1,0 +1,20 @@
+<library path="src">
+  <class name="Drive Selector" type="gui.drive_selector.DriveSelector" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Drive selector rqt GUI plugin for the FRED project.
+    </description>
+    <qtgui>
+      <!-- optional grouping...
+      <group>
+        <label>Group</label>
+      </group>
+      <group>
+        <label>Subgroup</label>
+      </group>
+      -->
+      <label>Drive Selector</label>
+      <icon type="theme">system-help</icon>
+      <statustip>Use to select drive style or autonomous mode</statustip>
+    </qtgui>
+  </class>
+</library>

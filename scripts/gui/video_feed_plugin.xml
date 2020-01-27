@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="Video Feeds" type="gui.video_feed.VideoFeed" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Visible and thermal video feed rqt GUI plugin for the FRED project.
+    </description>
+    <qtgui>
+      <label>Video Feeds</label>
+      <icon type="theme">system-help</icon>
+      <statustip>Center shows video feed from the front of the robot overlaid with thermal video from the front. Sides show thermal video from the sides of the robot.</statustip>
+    </qtgui>
+  </class>
+</library>
