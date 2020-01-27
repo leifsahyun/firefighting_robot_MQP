@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="Critical Time" type="gui.critical_time.CriticalTime" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Displays remaining time before robot failure
+    </description>
+    <qtgui>
+      <label>Critical Time</label>
+      <icon type="theme">system-help</icon>
+      <statustip>Displays remaining time before robot failure</statustip>
+    </qtgui>
+  </class>
+</library>
