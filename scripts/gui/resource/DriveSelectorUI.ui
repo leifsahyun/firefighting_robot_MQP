@@ -36,7 +36,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Human Option 1</string>
+    <string>Tank Drive</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="Button2">
@@ -49,7 +49,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Human Option 2</string>
+    <string>Arcade Drive</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="Button1">
@@ -62,7 +62,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Human Option 3</string>
+    <string>Rocket League-style Drive</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="Button1">
