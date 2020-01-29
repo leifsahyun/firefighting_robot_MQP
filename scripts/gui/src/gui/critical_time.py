@@ -3,10 +3,11 @@ import rospy
 import rospkg
 
 from std_msgs.msg import String
+from std_msgs.msg import Time
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
-from python_qt_binding.QtWidgets import QRadioButton
+from python_qt_binding.QtWidgets import QLabel
 
 class CriticalTime(Plugin):
 
@@ -48,8 +49,28 @@ class CriticalTime(Plugin):
         context.add_widget(self._widget)
         
         ### Non-template code begins here ###
-        # Do not do an infinite loop here because this code runs in the GUI thread
+        # Get a reference to the time display in the GUI
+        self.display = self._widget.findChild(QLabel, "TimeDisplay")
+        # Subscribe to the critical time topic with the update_text function
+        rospy.Subscriber("/critical_time", Time, self.update_text)
             
+    # Called when a new critical time estimate is published
+    # Updates the time displayed with the time in msg, which will be a ROS Duration
+    def update_text(self, msg):
+        rospy.loginfo("received message")
+        secs = msg.data.to_sec()
+        if secs>10*60:
+            self.display.setText(
+            '<b style="color:green;font-size:20pt;">'+str(int(secs//60))+":"+str(int(secs%60))+"</b>"
+            )
+        elif secs>5*60:
+            self.display.setText(
+            '<b style="color:orange;font-size:20pt;">'+str(int(secs//60))+":"+str(int(secs%60))+"</b>"
+            )
+        else:
+            self.display.setText(
+            '<b style="color:red;font-size:20pt;">'+str(int(secs//60))+":"+str(int(secs%60))+"</b>"
+            )
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here
