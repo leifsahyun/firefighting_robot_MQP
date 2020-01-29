@@ -2,4 +2,5 @@
 	<node name="IMU" pkg="simulated_sensors" type="imu_sensor.py"/>
 	<node name="temp_sensors" pkg="simulated_sensors" type="temp_sensors.py"/>
 	<node name="BME680" pkg="simulated_sensors" type="gas_sensor.py"/>
+	<node name="camera" pkg="simulated_sensors" type="start_camera.sh" />
 </launch>

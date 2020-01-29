@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import rospy
 import rospkg
@@ -57,7 +58,6 @@ class CriticalTime(Plugin):
     # Called when a new critical time estimate is published
     # Updates the time displayed with the time in msg, which will be a ROS Duration
     def update_text(self, msg):
-        rospy.loginfo("received message")
         secs = msg.data.to_sec()
         if secs>10*60:
             self.display.setText(

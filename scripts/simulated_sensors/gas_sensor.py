@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import rospy
 import random
+from numpy.random import normal
+from math import sqrt
 from sensor_msgs.msg import Temperature
 from sensor_msgs.msg import RelativeHumidity
 from sensor_msgs.msg import FluidPressure
@@ -11,7 +13,7 @@ def gas_sensor():
 	humid_variance = 0.2 #percent water vapor
 	base_pressure = 101325 #in pascals
 	pressure_variance = 1000 #in pascals
-	base_temp = 10
+	base_temp = 50
 	temp_variance = 1
 	humid_sensor = rospy.Publisher('BME680-humidity', RelativeHumidity)
 	pressure_sensor = rospy.Publisher('BME680-pressure', FluidPressure)
@@ -21,9 +23,12 @@ def gas_sensor():
 	seq = 0
 	while not rospy.is_shutdown():
 		h = Header(seq, rospy.Time.now(), '')
-		humid_sensor.publish(RelativeHumidity(h,base_humid-0.5*humid_variance+random.random()*humid_variance,humid_variance))
-		pressure_sensor.publish(FluidPressure(h,base_pressure-0.5*pressure_variance+random.random()*pressure_variance,pressure_variance))
-		temp_sensor.publish(Temperature(h,base_temp-0.5*temp_variance+random.random()*temp_variance,temp_variance))
+		curr_humid = normal(base_humid, sqrt(humid_variance))
+		curr_pressure = normal(base_pressure, sqrt(pressure_variance))
+		curr_temp = normal(base_temp, sqrt(temp_variance))
+		humid_sensor.publish(RelativeHumidity(h,curr_humid,humid_variance))
+		pressure_sensor.publish(FluidPressure(h,curr_pressure,pressure_variance))
+		temp_sensor.publish(Temperature(h,curr_temp,temp_variance))
 		seq = seq+1
 		rate.sleep()
 

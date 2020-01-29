@@ -7,15 +7,16 @@ from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
 from python_qt_binding.QtWidgets import QRadioButton
+import rqt_image_view
 
-class VideoFeed(Plugin):
+class VideoFeed(ImageView):
 
     def __init__(self, context):
         ### General rqt plugin setup ###
         super(VideoFeed, self).__init__(context)
         # Give QObjects reasonable names
         self.setObjectName('video_feed')
-
+        '''
         # Process standalone plugin command-line arguments
         from argparse import ArgumentParser
         parser = ArgumentParser()
@@ -46,7 +47,7 @@ class VideoFeed(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         # Add widget to the user interface
         context.add_widget(self._widget)
-        
+        '''
         ### Non-template code begins here ###
         # Do not do an infinite loop here because this code runs in the GUI thread
             
