@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot name="FRED">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.25 0.1 0.25"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <link name="right_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.06"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="left_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.06"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <joint name="base_to_right_wheel" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0.125 0 0"/>
+  </joint>
+  <joint name="base_to_left_wheel" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0.125 0 0"/>
+  </joint>
+</robot>
