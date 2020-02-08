@@ -61,15 +61,15 @@ class CriticalTime(Plugin):
         secs = msg.data.to_sec()
         if secs>10*60:
             self.display.setText(
-            '<b style="color:green;font-size:20pt;">'+str(int(secs//60))+":"+str(int(secs%60))+"</b>"
+            '<b style="color:green;font-size:20pt;">{0:02d}:{1:02d}</b>'.format(int(secs//60),int(secs%60))
             )
         elif secs>5*60:
             self.display.setText(
-            '<b style="color:orange;font-size:20pt;">'+str(int(secs//60))+":"+str(int(secs%60))+"</b>"
+            '<b style="color:orange;font-size:20pt;">{0:02d}:{1:02d}</b>'.format(int(secs//60),int(secs%60))
             )
         else:
             self.display.setText(
-            '<b style="color:red;font-size:20pt;">'+str(int(secs//60))+":"+str(int(secs%60))+"</b>"
+            '<b style="color:red;font-size:20pt;">{0:02d}:{1:02d}</b>'.format(int(secs//60),int(secs%60))
             )
 
     def shutdown_plugin(self):
