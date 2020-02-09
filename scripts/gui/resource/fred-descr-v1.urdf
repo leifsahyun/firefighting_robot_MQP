@@ -3,7 +3,7 @@
   <link name="base_link">
     <visual>
       <geometry>
-        <box size="0.25 0.1 0.25"/>
+        <box size="0.25 0.25 0.1"/>
       </geometry>
     </visual>
   </link>
@@ -13,6 +13,7 @@
       <geometry>
         <cylinder length="0.02" radius="0.06"/>
       </geometry>
+    	<origin xyz="0.135 0 0" rpy="0 1.57075 0"/>
     </visual>
   </link>
   <link name="left_wheel">
@@ -20,17 +21,18 @@
       <geometry>
         <cylinder length="0.02" radius="0.06"/>
       </geometry>
+    	<origin xyz="-0.135 0 0" rpy="0 1.57075 0"/>
     </visual>
   </link>
   
   <joint name="base_to_right_wheel" type="fixed">
     <parent link="base_link"/>
     <child link="right_wheel"/>
-    <origin xyz="0.125 0 0"/>
+    <origin xyz="0 0 0"/>
   </joint>
   <joint name="base_to_left_wheel" type="fixed">
     <parent link="base_link"/>
     <child link="left_wheel"/>
-    <origin xyz="0.125 0 0"/>
+    <origin xyz="0 0 0"/>
   </joint>
 </robot>

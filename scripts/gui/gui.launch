@@ -1,0 +1,4 @@
+<launch>
+	<param name="robot_description" textfile="$(find gui)/resource/fred-descr-v1.urdf"/>
+	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
+</launch>
