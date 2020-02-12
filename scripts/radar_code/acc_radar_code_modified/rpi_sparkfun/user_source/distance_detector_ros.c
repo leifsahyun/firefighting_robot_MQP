@@ -36,30 +36,30 @@
  */
 
 
-static bool service_envelope_setup(void);
+static acc_service_configuration_t service_envelope_setup(void);
 
+static bool service_envelope_takedown(acc_service_configuration_t envelope_configuration);
 
-static bool execute_envelope(acc_service_configuration_t envelope_configuration);
+static double execute_envelope(acc_service_configuration_t envelope_configuration);
 
 
 int main(void)
+{
+	acc_service_configuration_t config = service_envelope_setup();
+	execute_envelope(config);
+	service_envelope_takedown(config);
+
+	return EXIT_SUCCESS;
+}
+
+
+acc_service_configuration_t service_envelope_setup(void)
 {
 	if (!acc_driver_hal_init())
 	{
 		return EXIT_FAILURE;
 	}
 
-	if (!service_envelope_setup())
-	{
-		return EXIT_FAILURE;
-	}
-
-	return EXIT_SUCCESS;
-}
-
-
-bool service_envelope_setup(void)
-{
 	printf("Acconeer software version %s\n", acc_version_get());
 
 	acc_hal_t hal = acc_driver_hal_get_implementation();
@@ -87,23 +87,25 @@ bool service_envelope_setup(void)
 
 	//set the service profile to medium wavelets
 	acc_service_profile_set(envelope_configuration, ACC_SERVICE_PROFILE_3);
-
+/**
 	if (!execute_envelope(envelope_configuration))
 	{
-		acc_service_envelope_configuration_destroy(&envelope_configuration);
-		acc_rss_deactivate();
+		service_envelope_takedown(envelope_configuration);
 		return false;
 	}
+*/
+	return true;
+}
 
+bool service_envelope_takedown(acc_service_configuration_t envelope_configuration)
+{
 	acc_service_envelope_configuration_destroy(&envelope_configuration);
-
 	acc_rss_deactivate();
-
 	return true;
 }
 
 
-bool execute_envelope(acc_service_configuration_t envelope_configuration)
+double execute_envelope(acc_service_configuration_t envelope_configuration)
 {
 	acc_service_handle_t handle = acc_service_create(envelope_configuration);
 
@@ -158,9 +160,9 @@ bool execute_envelope(acc_service_configuration_t envelope_configuration)
 	printf("Peak radiance: %d\n", peak_radiance);
 	printf("Distance to peak: %f\n", measured_distance);
 
-	bool deactivated = acc_service_deactivate(handle);
+	//bool deactivated = acc_service_deactivate(handle);
 
 	acc_service_destroy(&handle);
 
-	return deactivated && success;
+	return measured_distance;
 }
