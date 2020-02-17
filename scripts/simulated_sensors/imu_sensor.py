@@ -10,12 +10,13 @@ from geometry_msgs.msg import Vector3
 from tf.transformations import quaternion_from_euler
 
 def imu_sensor():
-	euler_orient = (0, 0.2*pi, 0)
-	variance = 0.1
+	euler_orient = (0, 0, 0.2*pi)
+	small_variance = 0.005
+	significant_variance = 0.03
 	orientation_cov = [
-	variance, 0, 0,
-	0, variance, 0,
-	0, 0, variance]
+	small_variance, 0, 0,
+	0, small_variance, 0,
+	0, 0, significant_variance]
 	base_angular_vel = Vector3(0, 0, 0)
 	angular_vel_cov = [
 	-1, -1, -1,
@@ -32,7 +33,7 @@ def imu_sensor():
 	seq = 0
 	while not rospy.is_shutdown():
 		h = Header(seq, rospy.Time.now(), '')
-		temp_orient = quaternion_from_euler(*normal(euler_orient,sqrt(variance)))
+		temp_orient = quaternion_from_euler(*normal(euler_orient,(sqrt(small_variance),sqrt(small_variance),sqrt(significant_variance))))
 		quat_orient = Quaternion(temp_orient[0],temp_orient[1],temp_orient[2],temp_orient[3])
 		imu_pub.publish(Imu(h,quat_orient,orientation_cov,base_angular_vel,angular_vel_cov,base_accel,accel_cov))
 		seq = seq+1
