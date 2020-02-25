@@ -15,7 +15,7 @@ from autonomous_mode import AutoControl
 global mode
 mode = 'autonomous'
 modes = ['tank', 'arcade', 'rocket', 'autonomous']
-auto_control = AutoControl()
+auto_control = None
 curr_angle = 0
 
 def track_angle(msg):
@@ -37,10 +37,11 @@ def obstacle_detect(msg):
 if __name__ == '__main__':
     try:
         rospy.init_node('drive_node')
+	auto_control = AutoControl()
         vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         rospy.Subscriber('/joy', Joy, read_message, queue_size=10)
         rospy.Subscriber('/drive_mode', String, change_mode, queue_size=10)
-        rospy.Subscriber('/range', Range, obstacle_detect, queue_size=10)
+        rospy.Subscriber('/radar', Range, obstacle_detect, queue_size=10)
         rospy.Subscriber('/IMU', Imu, track_angle, queue_size=10)
         rospy.sleep(1)
         rospy.spin()
