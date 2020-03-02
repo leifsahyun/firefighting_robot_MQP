@@ -17,6 +17,7 @@
 #include <sensor_msgs/Temperature.h>
 #include <sensor_msgs/RelativeHumidity.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/BatteryState.h>
 #include <std_msgs/UInt8MultiArray.h>
 
 #define THERMAL_SIZE 384
