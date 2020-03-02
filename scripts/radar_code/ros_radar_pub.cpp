@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Range.h"
-#include "acc_radar_code_modified/rpi_sparkfun/user_source/distance_detector_ros.c"
+#include "acc_radar_code_modified/rpi_sparkfun/user_source/distance_detector_ros.cpp"
 #include "acc_radar_code_modified/rpi_sparkfun/include/acc_service.h"
 
 /**

@@ -43,21 +43,21 @@ static bool service_envelope_takedown(acc_service_configuration_t envelope_confi
 static double execute_envelope(acc_service_configuration_t envelope_configuration);
 
 
-int main(void)
+/*int main(void)
 {
 	acc_service_configuration_t config = service_envelope_setup();
 	execute_envelope(config);
 	service_envelope_takedown(config);
 
 	return EXIT_SUCCESS;
-}
+}*/
 
 
 acc_service_configuration_t service_envelope_setup(void)
 {
 	if (!acc_driver_hal_init())
 	{
-		return EXIT_FAILURE;
+		return NULL;
 	}
 
 	printf("Acconeer software version %s\n", acc_version_get());
@@ -67,7 +67,7 @@ acc_service_configuration_t service_envelope_setup(void)
 	if (!acc_rss_activate(&hal))
 	{
 		fprintf(stderr, "acc_rss_activate() failed\n");
-		return false;
+		return NULL;
 	}
 
 	acc_service_configuration_t envelope_configuration = acc_service_envelope_configuration_create();
@@ -76,7 +76,7 @@ acc_service_configuration_t service_envelope_setup(void)
 	{
 		fprintf(stderr, "acc_service_envelope_configuration_create() failed\n");
 		acc_rss_deactivate();
-		return false;
+		return NULL;
 	}
 
 	float start_m  = 0.2f;
@@ -94,7 +94,7 @@ acc_service_configuration_t service_envelope_setup(void)
 		return false;
 	}
 */
-	return true;
+	return envelope_configuration;
 }
 
 bool service_envelope_takedown(acc_service_configuration_t envelope_configuration)
@@ -112,7 +112,7 @@ double execute_envelope(acc_service_configuration_t envelope_configuration)
 	if (handle == NULL)
 	{
 		fprintf(stderr, "acc_service_create() failed\n");
-		return false;
+		return -1;
 	}
 
 	acc_service_envelope_metadata_t envelope_metadata;
@@ -130,7 +130,7 @@ double execute_envelope(acc_service_configuration_t envelope_configuration)
 	{
 		fprintf(stderr, "acc_service_activate() failed\n");
 		acc_service_destroy(&handle);
-		return false;
+		return -1;
 	}
 
 	bool success = true;
@@ -140,7 +140,7 @@ double execute_envelope(acc_service_configuration_t envelope_configuration)
 	if (!success)
 	{
 		fprintf(stderr, "acc_service_envelope_get_next() failed\n");
-		return false;
+		return -1;
 	}
 
 	//Get a distance measurement
