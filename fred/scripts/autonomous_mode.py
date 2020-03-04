@@ -76,7 +76,7 @@ class AutoControl:
 				twist.linear.x = 0
 				twist.angular.z = speed
 		#if obstacle in min range, begin turn	
-		elif curr_range < min_range:
+		elif curr_range < min_range and curr_range>0:
 			#turn
 			#rospy.loginfo("BEGIN TURN")
 			self.origin_angle = curr_angle
