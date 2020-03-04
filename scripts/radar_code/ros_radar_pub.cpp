@@ -16,11 +16,11 @@ int main(int argc, char **argv)
 	ros::Publisher radar_pub = nh.advertise<sensor_msgs::Range>("radar_node",1000);
 	ros::Rate loop_rate(10);
 
-	acc_service_configuration_t config = RadarHelper::service_envelope_setup();
+	acc_service_configuration_t config = service_envelope_setup();
 
 	while(ros::ok())
 	{
-		double measurement = RadarHelper::execute_envelope(config);
+		double measurement = execute_envelope(config);
 		sensor_msgs::Range distance_msg;
 		distance_msg.range = measurement;
 		printf("range measurement through ros node: %f\n", measurement);
@@ -29,5 +29,5 @@ int main(int argc, char **argv)
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
-	RadarHelper::service_envelope_takedown(config);
+	service_envelope_takedown(config);
 }

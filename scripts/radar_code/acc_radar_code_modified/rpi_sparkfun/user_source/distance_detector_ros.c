@@ -23,9 +23,9 @@
 int main(void)
 {
 	acc_driver_hal_init();
-	acc_service_configuration_t config = RadarHelper::service_envelope_setup();
-	double dist = RadarHelper::execute_envelope(config);
-	RadarHelper::service_envelope_takedown(config);
+	acc_service_configuration_t config = service_envelope_setup();
+	double dist = execute_envelope(config);
+	service_envelope_takedown(config);
 	
 	printf("Distance to peak radiance: %f\n", dist);
 

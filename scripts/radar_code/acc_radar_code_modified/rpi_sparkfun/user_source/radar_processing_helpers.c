@@ -17,7 +17,7 @@
  * Author: Leif Sahyun
  */
 
-acc_service_configuration_t RadarHelper::service_envelope_setup(void)
+acc_service_configuration_t service_envelope_setup(void)
 {
 	if (!acc_driver_hal_init())
 	{
@@ -61,14 +61,14 @@ acc_service_configuration_t RadarHelper::service_envelope_setup(void)
 	return envelope_configuration;
 }
 
-bool RadarHelper::service_envelope_takedown(acc_service_configuration_t envelope_configuration)
+bool service_envelope_takedown(acc_service_configuration_t envelope_configuration)
 {
 	acc_service_envelope_configuration_destroy(&envelope_configuration);
 	acc_rss_deactivate();
 	return true;
 }
 
-double RadarHelper::execute_envelope(acc_service_configuration_t envelope_configuration)
+double execute_envelope(acc_service_configuration_t envelope_configuration)
 {
 	acc_service_handle_t handle = acc_service_create(envelope_configuration);
 
@@ -130,7 +130,7 @@ double RadarHelper::execute_envelope(acc_service_configuration_t envelope_config
 	return measured_distance;
 }
 
-double RadarHelper::sample_average_dist(acc_service_configuration_t envelope_configuration, int sample_size)
+double sample_average_dist(acc_service_configuration_t envelope_configuration, int sample_size)
 {
 	double cum_dist = 0;
 	for(int i=0; i<sample_size; i++)
