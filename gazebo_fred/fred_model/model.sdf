@@ -1,0 +1,245 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="fred">
+    <static>false</static>
+    <link name='chassis'>
+      <pose>0 0 .1 0 0 0</pose>
+
+      <inertial>
+        <mass>7.0</mass>
+        <inertia> <!-- inertias are tricky to compute -->
+          <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+          <ixx>0.0675</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
+          <ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
+          <ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
+          <iyy>0.0675</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+          <iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
+          <izz>0.108</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+        </inertia>
+      </inertial>
+
+      <collision name='collision'>
+        <geometry>
+          <box>
+            <size>.3048 .3048 .1524</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>.3048 .3048 .1524</size>
+          </box>
+        </geometry>
+      </visual>
+      
+      <collision name='tail_collision'>
+        <pose>-.1524 0 -.0762 0 0 0</pose>
+        <geometry>
+          <polyline>
+            <point>0 -.1524</point>
+            <point>0 .1524</point>
+            <point>-.3048 0</point>
+            <height>.0762</height>
+          </polyline>
+        </geometry>
+      </collision>
+      
+      <visual name='tail_visual'>
+        <pose>-.1524 0 -.0762 0 0 0</pose>
+        <geometry>
+          <polyline>
+            <point>0 -.1524</point>
+            <point>0 .1524</point>
+            <point>-.3048 0</point>
+            <height>.0762</height>
+          </polyline>
+        </geometry>
+      </visual>
+      
+      <collision name='caster_collision'>
+        <pose>-0.3862 0 -0.05 0 0 0</pose>
+        <geometry>
+            <sphere>
+            <radius>.05</radius>
+          </sphere>
+        </geometry>
+
+        <surface>
+          <friction>
+            <ode>
+              <mu>0</mu>
+              <mu2>0</mu2>
+              <slip1>1.0</slip1>
+              <slip2>1.0</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+
+      <visual name='caster_visual'>
+        <pose>-0.3862 0 -0.05 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>.05</radius>
+          </sphere>
+        </geometry>
+      </visual>
+    </link>
+    
+    <link name="left_wheel">
+      <pose>.1016 .1624 .0635 0 1.5707 1.5707</pose>
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>.0635</radius>
+            <length>.02</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>.0635</radius>
+            <length>.02</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+    
+    <link name="right_wheel">
+      <pose>.1016 -.1624 .0635 0 1.5707 1.5707</pose>
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>.0635</radius>
+            <length>.02</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>.0635</radius>
+            <length>.02</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+    
+    <joint type="revolute" name="left_wheel_joint">
+      <pose>0 0 -0.01 0 0 0</pose>
+      <child>left_wheel</child>
+      <parent>chassis</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <joint type="revolute" name="right_wheel_joint">
+      <pose>0 0 0.01 3.14159 0 0</pose>
+      <child>right_wheel</child>
+      <parent>chassis</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+    
+    <joint type="fixed" name="range_joint">
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+      <pose> 0 0 0 0 0 0 </pose>
+      <parent>chassis</parent>
+      <child>radar_link</child>
+    </joint>
+    
+    <link name="radar_link">
+      <collision name="collision">
+        <pose> .1524 0 .1524 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose> .1524 0 .1524 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </visual>
+
+      <sensor type="ray" name="radar">
+          <pose>.1524 0 .1524 0 0 0</pose>
+          <update_rate>5</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>5</samples>
+                <resolution>1.0</resolution>
+                <min_angle>-0.25</min_angle>
+                <max_angle>0.25</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>5</samples>
+                <resolution>1</resolution>
+                <min_angle>-0.25</min_angle>
+                <max_angle>0.25</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.20</min>
+              <max>1.0</max>
+              <resolution>0.001</resolution>
+            </range>
+          </ray>
+          <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_radar">
+            <gaussianNoise>0.005</gaussianNoise>
+            <alwaysOn>true</alwaysOn>
+            <updateRate>5</updateRate>
+            <topicName>radar</topicName>
+            <frameName>radar_link</frameName>
+            <fov>0.5</fov>
+            <radiation>infrared</radiation>
+          </plugin>
+        </sensor>
+    </link>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>40</updateRate>
+      <leftJoint>left_wheel_joint</leftJoint>
+      <rightJoint>right_wheel_joint</rightJoint>
+      <wheelSeparation>.3048</wheelSeparation>
+      <wheelDiameter>.127</wheelDiameter>
+      <torque>10</torque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>chassis</robotBaseFrame>
+      <wheelAcceleration>0</wheelAcceleration>
+      <publishOdomTF>true</publishOdomTF>
+      <publishWheelJointState>true</publishWheelJointState>
+      <odometrySource>world</odometrySource>
+    </plugin>
+  </model>
+</sdf>

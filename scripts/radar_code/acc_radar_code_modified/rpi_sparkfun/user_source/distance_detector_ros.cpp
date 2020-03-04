@@ -86,7 +86,7 @@ acc_service_configuration_t service_envelope_setup(void)
 	acc_service_requested_length_set(envelope_configuration, length_m);
 
 	//set the service profile to medium wavelets
-	acc_service_profile_set(envelope_configuration, ACC_SERVICE_PROFILE_3);
+	acc_service_profile_set(envelope_configuration, ACC_SERVICE_PROFILE_2);
 /**
 	if (!execute_envelope(envelope_configuration))
 	{
