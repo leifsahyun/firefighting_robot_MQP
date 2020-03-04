@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Range.h"
+#include "std_msgs/Float32.h"
+#include "std_msgs/String.h"
 
 #include "acc_service.h"
 
@@ -20,17 +22,17 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "radar_node");
 	ros::NodeHandle nh;
-	ros::Publisher radar_pub = nh.advertise<sensor_msgs::Range>("radar_node",1000);
+	ros::Publisher radar_pub = nh.advertise<sensor_msgs::Range>("radar",10);
 	ros::Rate loop_rate(10);
 
 	acc_service_configuration_t config = service_envelope_setup();
 
 	while(ros::ok())
 	{
-		double measurement = execute_envelope(config);
+		double measurement = sample_average_dist(config, 5);
 		sensor_msgs::Range distance_msg;
 		distance_msg.range = measurement;
-		printf("range measurement through ros node: %f\n", measurement);
+		
 		radar_pub.publish(distance_msg);
 
 		ros::spinOnce();

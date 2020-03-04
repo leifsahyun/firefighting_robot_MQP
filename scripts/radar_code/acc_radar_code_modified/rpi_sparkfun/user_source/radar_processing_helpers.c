@@ -118,16 +118,14 @@ double execute_envelope(acc_service_configuration_t envelope_configuration)
 		}
 	}
 	double measured_distance = envelope_metadata.start_m + peak_index*envelope_metadata.step_length_m;
-	printf("\n");
-	printf("Total number of values recorded: %u\n", envelope_metadata.data_length);
-	printf("Peak radiance: %d\n", peak_radiance);
-	printf("Distance to peak: %f\n", measured_distance);
-
-	//bool deactivated = acc_service_deactivate(handle);
 
 	acc_service_destroy(&handle);
 
-	return measured_distance;
+	//check that the peak radiance is greater than a threshold
+	if(peak_radiance>200)
+		return measured_distance;
+	else
+		return -1;
 }
 
 double sample_average_dist(acc_service_configuration_t envelope_configuration, int sample_size)
@@ -135,9 +133,14 @@ double sample_average_dist(acc_service_configuration_t envelope_configuration, i
 	double cum_dist = 0;
 	for(int i=0; i<sample_size; i++)
 	{
-		cum_dist += execute_envelope(envelope_configuration);
-		service_envelope_takedown(envelope_configuration);
+		double measurement = execute_envelope(envelope_configuration);
+		if(measurement>0)
+			cum_dist+=measurement;
+		else
+			sample_size--;
 	}
+	if(sample_size==0 || cum_dist==0)
+		return -1;
 	return cum_dist/sample_size;
 }
 
