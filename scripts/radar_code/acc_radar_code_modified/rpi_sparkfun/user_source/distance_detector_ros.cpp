@@ -20,20 +20,14 @@
  */
 
 
-static acc_service_configuration_t service_envelope_setup(void);
-
-static bool service_envelope_takedown(acc_service_configuration_t envelope_configuration);
-
-static double execute_envelope(acc_service_configuration_t envelope_configuration);
-
-
 int main(void)
 {
+	acc_driver_hal_init();
 	acc_service_configuration_t config = RadarHelper::service_envelope_setup();
 	double dist = RadarHelper::execute_envelope(config);
 	RadarHelper::service_envelope_takedown(config);
 	
-	printf("Distance to peak radiance: %f\n", measured_distance);
+	printf("Distance to peak radiance: %f\n", dist);
 
 	return EXIT_SUCCESS;
 }

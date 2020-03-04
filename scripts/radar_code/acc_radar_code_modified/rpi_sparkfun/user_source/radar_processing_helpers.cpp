@@ -17,7 +17,7 @@
  * Author: Leif Sahyun
  */
 
-RadarHelper::acc_service_configuration_t service_envelope_setup(void)
+acc_service_configuration_t RadarHelper::service_envelope_setup(void)
 {
 	if (!acc_driver_hal_init())
 	{

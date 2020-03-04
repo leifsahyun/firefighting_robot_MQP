@@ -1,0 +1,2 @@
+/usr/bin/ar qc libradar_processing_helpers.a  CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o
+/usr/bin/ranlib libradar_processing_helpers.a
