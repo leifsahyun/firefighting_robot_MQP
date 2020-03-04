@@ -57,30 +57,30 @@ include CMakeFiles/radar_processing_helpers.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/radar_processing_helpers.dir/flags.make
 
-CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o: CMakeFiles/radar_processing_helpers.dir/flags.make
-CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o: radar_processing_helpers.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o -c /home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/radar_processing_helpers.cpp
+CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o: CMakeFiles/radar_processing_helpers.dir/flags.make
+CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o: radar_processing_helpers.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o   -c /home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/radar_processing_helpers.c
 
-CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/radar_processing_helpers.cpp > CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.i
+CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/radar_processing_helpers.c > CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.i
 
-CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/radar_processing_helpers.cpp -o CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.s
+CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/radar_processing_helpers.c -o CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.s
 
 # Object files for target radar_processing_helpers
 radar_processing_helpers_OBJECTS = \
-"CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o"
+"CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o"
 
 # External object files for target radar_processing_helpers
 radar_processing_helpers_EXTERNAL_OBJECTS =
 
-libradar_processing_helpers.a: CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o
+libradar_processing_helpers.a: CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o
 libradar_processing_helpers.a: CMakeFiles/radar_processing_helpers.dir/build.make
 libradar_processing_helpers.a: CMakeFiles/radar_processing_helpers.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libradar_processing_helpers.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C static library libradar_processing_helpers.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/radar_processing_helpers.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/radar_processing_helpers.dir/link.txt --verbose=$(VERBOSE)
 

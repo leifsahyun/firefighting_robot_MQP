@@ -136,59 +136,59 @@ distance_detector_ros/fast:
 	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/build
 .PHONY : distance_detector_ros/fast
 
-distance_detector_ros.o: distance_detector_ros.cpp.o
+distance_detector_ros.o: distance_detector_ros.c.o
 
 .PHONY : distance_detector_ros.o
 
 # target to build an object file
-distance_detector_ros.cpp.o:
-	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/distance_detector_ros.cpp.o
-.PHONY : distance_detector_ros.cpp.o
+distance_detector_ros.c.o:
+	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/distance_detector_ros.c.o
+.PHONY : distance_detector_ros.c.o
 
-distance_detector_ros.i: distance_detector_ros.cpp.i
+distance_detector_ros.i: distance_detector_ros.c.i
 
 .PHONY : distance_detector_ros.i
 
 # target to preprocess a source file
-distance_detector_ros.cpp.i:
-	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/distance_detector_ros.cpp.i
-.PHONY : distance_detector_ros.cpp.i
+distance_detector_ros.c.i:
+	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/distance_detector_ros.c.i
+.PHONY : distance_detector_ros.c.i
 
-distance_detector_ros.s: distance_detector_ros.cpp.s
+distance_detector_ros.s: distance_detector_ros.c.s
 
 .PHONY : distance_detector_ros.s
 
 # target to generate assembly for a file
-distance_detector_ros.cpp.s:
-	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/distance_detector_ros.cpp.s
-.PHONY : distance_detector_ros.cpp.s
+distance_detector_ros.c.s:
+	$(MAKE) -f CMakeFiles/distance_detector_ros.dir/build.make CMakeFiles/distance_detector_ros.dir/distance_detector_ros.c.s
+.PHONY : distance_detector_ros.c.s
 
-radar_processing_helpers.o: radar_processing_helpers.cpp.o
+radar_processing_helpers.o: radar_processing_helpers.c.o
 
 .PHONY : radar_processing_helpers.o
 
 # target to build an object file
-radar_processing_helpers.cpp.o:
-	$(MAKE) -f CMakeFiles/radar_processing_helpers.dir/build.make CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.o
-.PHONY : radar_processing_helpers.cpp.o
+radar_processing_helpers.c.o:
+	$(MAKE) -f CMakeFiles/radar_processing_helpers.dir/build.make CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.o
+.PHONY : radar_processing_helpers.c.o
 
-radar_processing_helpers.i: radar_processing_helpers.cpp.i
+radar_processing_helpers.i: radar_processing_helpers.c.i
 
 .PHONY : radar_processing_helpers.i
 
 # target to preprocess a source file
-radar_processing_helpers.cpp.i:
-	$(MAKE) -f CMakeFiles/radar_processing_helpers.dir/build.make CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.i
-.PHONY : radar_processing_helpers.cpp.i
+radar_processing_helpers.c.i:
+	$(MAKE) -f CMakeFiles/radar_processing_helpers.dir/build.make CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.i
+.PHONY : radar_processing_helpers.c.i
 
-radar_processing_helpers.s: radar_processing_helpers.cpp.s
+radar_processing_helpers.s: radar_processing_helpers.c.s
 
 .PHONY : radar_processing_helpers.s
 
 # target to generate assembly for a file
-radar_processing_helpers.cpp.s:
-	$(MAKE) -f CMakeFiles/radar_processing_helpers.dir/build.make CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.cpp.s
-.PHONY : radar_processing_helpers.cpp.s
+radar_processing_helpers.c.s:
+	$(MAKE) -f CMakeFiles/radar_processing_helpers.dir/build.make CMakeFiles/radar_processing_helpers.dir/radar_processing_helpers.c.s
+.PHONY : radar_processing_helpers.c.s
 
 # Help Target
 help:

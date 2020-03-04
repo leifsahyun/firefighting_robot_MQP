@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Range.h"
-#include "radar_processing_helpers.h"
+
 #include "acc_service.h"
 
 /**
@@ -8,6 +8,13 @@
 * This node uses the distance-sensor-ros file in the acc_radar_code directory
 * to get range measurements to nearest obstacle, then this node publishes that in ROS
 */
+
+extern "C" {
+	acc_service_configuration_t service_envelope_setup();
+	bool service_envelope_takedown(acc_service_configuration_t);
+	double execute_envelope(acc_service_configuration_t);
+	double sample_average_dist(acc_service_configuration_t, int);
+}
 
 int main(int argc, char **argv)
 {

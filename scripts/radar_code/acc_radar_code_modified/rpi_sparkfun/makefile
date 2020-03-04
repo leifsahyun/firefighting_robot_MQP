@@ -44,7 +44,7 @@ include $(wildcard rule/makefile_build_*.inc)
 include $(wildcard user_rule/makefile_define_*.inc)
 include $(wildcard user_rule/makefile_build_*.inc)
 
-SOURCES := $(wildcard source/*.c) $(wildcard user_source/*.c)
+SOURCES := $(wildcard source/*.c) $(wildcard user_source/*.c) $(wildcard user_source/*.cpp)
 DEPENDS := $(addprefix out/, $(notdir $(SOURCES:.c=.d)))
 
 -include $(DEPENDS)

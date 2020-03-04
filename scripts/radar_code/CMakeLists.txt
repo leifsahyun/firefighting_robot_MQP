@@ -114,6 +114,11 @@ catkin_package(
 include_directories(
  ${catkin_INCLUDE_DIRS}
  acc_radar_code_modified/rpi_sparkfun/include/
+ acc_radar_code_modified/rpi_sparkfun/user_source/
+)
+
+add_subdirectory(
+/home/pi/catkin_ws_mqp/src/firefighting_robot_MQP/scripts/radar_code/acc_radar_code_modified/rpi_sparkfun/user_source
 )
 
 ## Declare a C++ library
@@ -202,4 +207,4 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_executable(ros_radar_pub ros_radar_pub.cpp)
-target_link_libraries(ros_radar_pub ${catkin_LIBRARIES})
+target_link_libraries(ros_radar_pub ${catkin_LIBRARIES} radar_processing_helpers)
