@@ -13,8 +13,8 @@ from drive_interpreter import interpret_msg
 from autonomous_mode import AutoControl
 
 global mode
-mode = 'autonomous'
-modes = ['tank', 'arcade', 'rocket', 'autonomous']
+mode = 'Tank Drive'
+modes = ['Tank Drive', 'Arcade Drive', 'Rocket League-style Drive', 'Autonomous']
 auto_control = None
 curr_angle = 0
 
@@ -24,14 +24,15 @@ def track_angle(msg):
     curr_angle = rpy[2]
 
 def change_mode(msg):
+    global mode
     mode = msg.data
 
 def read_message(msg):
-    if not mode == 'autonomous':
+    if not mode == 'Autonomous':
         vel_pub.publish(interpret_msg(mode, msg))
         
 def obstacle_detect(msg):
-    if mode == 'autonomous':
+    if mode == 'Autonomous':
         vel_pub.publish(auto_control.get_twist(msg, curr_angle))
 
 if __name__ == '__main__':
@@ -40,9 +41,9 @@ if __name__ == '__main__':
 	auto_control = AutoControl()
         vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         rospy.Subscriber('/joy', Joy, read_message, queue_size=10)
-        rospy.Subscriber('/drive_mode', String, change_mode, queue_size=10)
+        rospy.Subscriber('/drive_style', String, change_mode, queue_size=10)
         rospy.Subscriber('/radar', Range, obstacle_detect, queue_size=10)
-        rospy.Subscriber('/IMU', Imu, track_angle, queue_size=10)
+        #rospy.Subscriber('/IMU', Imu, track_angle, queue_size=10)
         rospy.sleep(1)
         rospy.spin()
     except rospy.ROSInterruptException:

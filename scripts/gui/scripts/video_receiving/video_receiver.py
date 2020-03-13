@@ -10,7 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 #This ffmpeg command definition from https://stackoverflow.com/questions/35166111/opencv-python-reading-video-from-named-pipe
 FFMPEG_BIN = "ffmpeg"
 command = [ FFMPEG_BIN,
-        '-i', '/home/leif/video_streaming_ws/video_pipe.h264',             # fifo is the named pipe
+        '-i', 'video_pipe.h264',             # fifo is the named pipe
         '-pix_fmt', 'bgr24',      # opencv requires bgr24 pixel format.
         '-vcodec', 'rawvideo',
         '-an','-sn',              # we want to disable audio processing (there is no audio)

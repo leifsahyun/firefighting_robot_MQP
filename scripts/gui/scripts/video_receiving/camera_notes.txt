@@ -1,0 +1,8 @@
+From raspivid --help output:
+
+Raspivid allows output to a remote IPv4 host e.g. -o tcp://192.168.1.2:1234or -o udp://192.168.1.2:1234
+To listen on a TCP port (IPv4) and wait for an incoming connection use the -l option
+e.g. raspivid -l -o tcp://0.0.0.0:3333 -> bind to all network interfaces,
+raspivid -l -o tcp://192.168.1.1:3333 -> bind to a certain local IPv4 port
+
+-o, --output	: Output filename <filename> (to write to stdout, use '-o -'). If not specified, no file is saved

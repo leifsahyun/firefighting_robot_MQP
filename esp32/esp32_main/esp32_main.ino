@@ -71,15 +71,24 @@ Adafruit_BNO055 bno = Adafruit_BNO055();
 // muliplexer port assignments
 #define THERMAL_0 0
 #define THERMAL_1 1
-#define THERMAL_2 2
-#define BME 4
-#define BNO 5
+#define THERMAL_2 3
+#define BME 2
+#define BNO 7
+
+// whether each sensor is online
+bool bmeOnline = false;
+bool bnoOnline = false;
+bool thermalOnline = false;
 
 
 // initialize ROS publishers and each sensor
 void setup() {
+  Serial.begin(57600);
+  Serial.println("\n\n");
+  Serial.println("ESP32 software started");
   // ros initializations
   nh.initNode();
+  Serial.println("Ros Node initialized");
   //nh.advertise(range_pub);
   nh.advertise(temp_pub);
   nh.advertise(humid_pub);
@@ -87,24 +96,30 @@ void setup() {
   nh.advertise(thermal_pub0);
   nh.advertise(thermal_pub1);
   nh.advertise(thermal_pub2);
+  nh.spinOnce(); //lets the ros node handler send data to pi
+  Serial.println("ROS Publishers Initialized");
+  Serial.println("\n\n");
 
   // I2C init
   Wire.begin();
-  Serial.begin(57600);
+  //Serial.begin(57600);
   // BME init
   tcaselect(BME);
   if (!bme.begin()) {
     // could not find BME
     Serial.println("Failed to connect to BME");
-    while (1);
+  } else {
+    bmeOnline = true;
   }
 
   // Set up oversampling and filter initialization
-  bme.setTemperatureOversampling(BME680_OS_8X);
-  bme.setHumidityOversampling(BME680_OS_2X);
-  bme.setPressureOversampling(BME680_OS_4X);
-  bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-  bme.setGasHeater(320, 150); // 320*C for 150 ms
+  if(bmeOnline){
+    bme.setTemperatureOversampling(BME680_OS_8X);
+    bme.setHumidityOversampling(BME680_OS_2X);
+    bme.setPressureOversampling(BME680_OS_4X);
+    bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+    bme.setGasHeater(320, 150); // 320*C for 150 ms
+  }
 
 //  // range init
 //  tcaselect(RANGE);
@@ -119,17 +134,22 @@ void setup() {
   if(!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
+    Serial.println("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+  } else {
+    bnoOnline = true;
   }
+  
   imu_msg.orientation_covariance[0] = -1;
   imu_msg.angular_velocity_covariance[0] = -1;
   imu_msg.linear_acceleration_covariance[0] = -1;
 
   // thermal inits
+  Serial.println("initializing thermal arrays");
+  thermalOnline = true;
   MLX_init(THERMAL_0);
   MLX_init(THERMAL_1);
   MLX_init(THERMAL_2);
+  Serial.println("thermal arrays initialized");
 
   // init some constant data for ROS messages
   temp_msg.variance = 1.0;
@@ -147,25 +167,27 @@ void setup() {
 
   thermal_msg.layout = thermal_msg_layout;
   thermal_msg.data_length = THERMAL_SIZE;
-  Serial.println("all sensors connected");
+  Serial.println("setup complete");
 }
 
 // repeatedly read from each sensor and publish to ROS
 void loop() {
 
   // read from BME sensor
-  tcaselect(BME);
-  temp_msg.header.stamp = nh.now();
-  humid_msg.header.stamp = nh.now();
-  if (bme.performReading()) {
-    temp_msg.temperature = bme.temperature;
-    humid_msg.relative_humidity = bme.humidity / 100.0;
-  } else {
-    temp_msg.temperature = 0.0;
-    humid_msg.relative_humidity = -1.0;
+  if(bmeOnline){
+    tcaselect(BME);
+    temp_msg.header.stamp = nh.now();
+    humid_msg.header.stamp = nh.now();
+    if (bme.performReading()) {
+      temp_msg.temperature = bme.temperature;
+      humid_msg.relative_humidity = bme.humidity / 100.0;
+    } else {
+      temp_msg.temperature = 0.0;
+      humid_msg.relative_humidity = -1.0;
+    }
+    temp_pub.publish(&temp_msg);
+    humid_pub.publish(&humid_msg);
   }
-  temp_pub.publish(&temp_msg);
-  humid_pub.publish(&humid_msg);
 
   // read from TOF sensor
   //VL53L0X_RangingMeasurementData_t measure;
@@ -187,84 +209,87 @@ void loop() {
 //  range_pub.publish(&range_msg);
 
   // BNO Readings
-
-  imu_msg.header.stamp = nh.now();
+  if(bnoOnline){
+    imu_msg.header.stamp = nh.now();
+    
+    imu::Quaternion quat = bno.getQuat();
+    imu_msg.orientation.x = static_cast<double>(quat.x());
+    imu_msg.orientation.y = static_cast<double>(quat.y());
+    imu_msg.orientation.z = static_cast<double>(quat.z());
+    imu_msg.orientation.w = static_cast<double>(quat.w());
   
-  imu::Quaternion quat = bno.getQuat();
-  imu_msg.orientation.x = static_cast<double>(quat.x());
-  imu_msg.orientation.y = static_cast<double>(quat.y());
-  imu_msg.orientation.z = static_cast<double>(quat.z());
-  imu_msg.orientation.w = static_cast<double>(quat.w());
-
-  imu::Vector<3> angular = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-  imu_msg.angular_velocity.x = static_cast<double>(angular.x());
-  imu_msg.angular_velocity.y = static_cast<double>(angular.y());
-  imu_msg.angular_velocity.z = static_cast<double>(angular.z());
+    imu::Vector<3> angular = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    imu_msg.angular_velocity.x = static_cast<double>(angular.x());
+    imu_msg.angular_velocity.y = static_cast<double>(angular.y());
+    imu_msg.angular_velocity.z = static_cast<double>(angular.z());
+    
+    imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+    imu_msg.linear_acceleration.x = static_cast<double>(accel.x());
+    imu_msg.linear_acceleration.y = static_cast<double>(accel.y());
+    imu_msg.linear_acceleration.z = static_cast<double>(accel.z());
   
-  imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-  imu_msg.linear_acceleration.x = static_cast<double>(accel.x());
-  imu_msg.linear_acceleration.y = static_cast<double>(accel.y());
-  imu_msg.linear_acceleration.z = static_cast<double>(accel.z());
-
-  imu_pub.publish(&imu_msg);
+    imu_pub.publish(&imu_msg);
+  }
 
   // IR Array readings
-  MLX_read(THERMAL_0);
-  for(int j = 0; j < 768; j += THERMAL_SIZE) {
-    thermal_msg_layout.data_offset = j;
-    thermal_msg.layout = thermal_msg_layout;
-    for(int i = j; i < THERMAL_SIZE+j; i++) {
-      float temp = mlx90640To[i];
-      if (temp <= 25.0) {
-        temp = 25;
+  if(thermalOnline){
+    MLX_read(THERMAL_0);
+    for(int j = 0; j < 768; j += THERMAL_SIZE) {
+      thermal_msg_layout.data_offset = j;
+      thermal_msg.layout = thermal_msg_layout;
+      for(int i = j; i < THERMAL_SIZE+j; i++) {
+        float temp = mlx90640To[i];
+        if (temp <= 25.0) {
+          temp = 25;
+        }
+        else if (temp >= 280.0) {
+          temp = 280;
+        }
+        temp -= 25;
+        uint8_t temp2 = static_cast<uint8_t>(temp);
+        thermal_data[i%THERMAL_SIZE] = temp2;
       }
-      else if (temp >= 280.0) {
-        temp = 280;
-      }
-      temp -= 25;
-      uint8_t temp2 = static_cast<uint8_t>(temp);
-      thermal_data[i%THERMAL_SIZE] = temp2;
+    thermal_msg.data = thermal_data;
+    thermal_pub0.publish(&thermal_msg);
     }
-  thermal_msg.data = thermal_data;
-  thermal_pub0.publish(&thermal_msg);
-  }
-  MLX_read(THERMAL_1);
-  for(int j = 0; j < 768; j += THERMAL_SIZE) {
-    thermal_msg_layout.data_offset = j;
-    thermal_msg.layout = thermal_msg_layout;
-    for(int i = j; i < THERMAL_SIZE+j; i++) {
-      float temp = mlx90640To[i];
-      if (temp <= 25.0) {
-        temp = 25;
+    MLX_read(THERMAL_1);
+    for(int j = 0; j < 768; j += THERMAL_SIZE) {
+      thermal_msg_layout.data_offset = j;
+      thermal_msg.layout = thermal_msg_layout;
+      for(int i = j; i < THERMAL_SIZE+j; i++) {
+        float temp = mlx90640To[i];
+        if (temp <= 25.0) {
+          temp = 25;
+        }
+        else if (temp >= 280.0) {
+          temp = 280;
+        }
+        temp -= 25;
+        uint8_t temp2 = static_cast<uint8_t>(temp);
+        thermal_data[i%THERMAL_SIZE] = temp2;
       }
-      else if (temp >= 280.0) {
-        temp = 280;
-      }
-      temp -= 25;
-      uint8_t temp2 = static_cast<uint8_t>(temp);
-      thermal_data[i%THERMAL_SIZE] = temp2;
+    thermal_msg.data = thermal_data;
+    thermal_pub1.publish(&thermal_msg);
     }
-  thermal_msg.data = thermal_data;
-  thermal_pub1.publish(&thermal_msg);
-  }
-  MLX_read(THERMAL_2);
-  for(int j = 0; j < 768; j += THERMAL_SIZE) {
-    thermal_msg_layout.data_offset = j;
-    thermal_msg.layout = thermal_msg_layout;
-    for(int i = j; i < THERMAL_SIZE+j; i++) {
-      float temp = mlx90640To[i];
-      if (temp <= 25.0) {
-        temp = 25;
+    MLX_read(THERMAL_2);
+    for(int j = 0; j < 768; j += THERMAL_SIZE) {
+      thermal_msg_layout.data_offset = j;
+      thermal_msg.layout = thermal_msg_layout;
+      for(int i = j; i < THERMAL_SIZE+j; i++) {
+        float temp = mlx90640To[i];
+        if (temp <= 25.0) {
+          temp = 25;
+        }
+        else if (temp >= 280.0) {
+          temp = 280;
+        }
+        temp -= 25;
+        uint8_t temp2 = static_cast<uint8_t>(temp);
+        thermal_data[i%THERMAL_SIZE] = temp2;
       }
-      else if (temp >= 280.0) {
-        temp = 280;
-      }
-      temp -= 25;
-      uint8_t temp2 = static_cast<uint8_t>(temp);
-      thermal_data[i%THERMAL_SIZE] = temp2;
+    thermal_msg.data = thermal_data;
+    thermal_pub2.publish(&thermal_msg);
     }
-  thermal_msg.data = thermal_data;
-  thermal_pub2.publish(&thermal_msg);
   }
 
   nh.spinOnce();
@@ -273,11 +298,12 @@ void loop() {
 // initialize an MLX sensor
 void MLX_init(int port) {
   tcaselect(port);
-  if (isConnected() == false)
+  if (isConnected() == false || thermalOnline==false)
   {
     // sensor not detected
     Serial.printf("Failed to connect to MLX %d\n", port);
-    while (1);
+    thermalOnline = false;
+    return;
   }
   int status;
   uint16_t eeMLX90640[832];
@@ -328,8 +354,6 @@ boolean isConnected()
 
 // select multiplexer port
 void tcaselect(uint8_t i) {
-  if (i > 7) return;
-
   Wire.beginTransmission(TCAADDR);
   Wire.write(1 << i);
   Wire.endTransmission();

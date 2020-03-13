@@ -1,0 +1,7 @@
+<launch>
+	<node name="IMU" pkg="simulated_sensors" type="imu_sensor.py"/>
+	<node name="temp_sensors" pkg="simulated_sensors" type="temp_sensors.py"/>
+	<node name="BME680" pkg="simulated_sensors" type="gas_sensor.py"/>
+	<node name="thermal_arrays" pkg="simulated_sensors" type="thermal_arrays.py"/>
+	<node name="crit_time" pkg="simulated_sensors" type="crit_time.py"/>
+</launch>
