@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="ShortTopic" type="gui.short_topics.ShortTopic" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Reduced output from rqt topic monitor
+    </description>
+    <qtgui>
+      <label>Sensor Data</label>
+      <icon type="theme">system-help</icon>
+      <statustip>Sensor data from the robot, updated at 10 Hz</statustip>
+    </qtgui>
+  </class>
+</library>

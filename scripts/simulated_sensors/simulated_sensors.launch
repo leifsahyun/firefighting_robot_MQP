@@ -4,5 +4,5 @@
 	<node name="BME680" pkg="simulated_sensors" type="gas_sensor.py"/>
 	<node name="camera" pkg="simulated_sensors" type="start_camera.sh" />
 	<node name="thermal_arrays" pkg="simulated_sensors" type="thermal_arrays.py"/>
-	<node name="crit_time" pkg="simulated_sensors" type="crit_time.py"/>
+	<node name="bms" pkg="simulated_sensors" type="bms.py"/>
 </launch>

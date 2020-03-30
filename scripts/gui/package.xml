@@ -66,5 +66,6 @@
     <rqt_gui plugin="${prefix}/drive_selector_plugin.xml"/>
     <rqt_gui plugin="${prefix}/video_feed_plugin.xml"/>
     <rqt_gui plugin="${prefix}/critical_time_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/short_topics_plugin.xml"/>
   </export>
 </package>
