@@ -8,6 +8,7 @@ from sensor_msgs.msg import Image
 import numpy as np
 from math import sqrt
 from cv_bridge import CvBridge, CvBridgeError
+from std_msgs.msg import Header
 
 class thermal_array_converter:
 	def __init__(self):
@@ -31,19 +32,21 @@ class thermal_array_converter:
 		small_pixels = np.reshape(data, (24, 32))
 		scaling_matrix = np.ones((30,40))
 		result = np.kron(small_pixels, scaling_matrix)
+		result = np.uint8(result)
+		bgrResult = cv2.merge((result, result, result))
 		
 		msg_out = None
 		try:
-			msg_out = self.bridge.cv2_to_imgmsg(result, "bgr8")
+			msg_out = self.bridge.cv2_to_imgmsg(bgrResult, "rgb8")
 		except CvBridgeError as e:
 			rospy.logerr(e)
 		if not msg_out == None:
 			if args==0:
-				pub0.publish(msg_out)
+				self.pub0.publish(msg_out)
 			elif args==1:
-				pub1.publish(msg_out)
+				self.pub1.publish(msg_out)
 			else:
-				pub2.publish(msg_out)
+				self.pub2.publish(msg_out)
 
 
 if __name__ == "__main__":

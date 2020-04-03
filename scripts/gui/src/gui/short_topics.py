@@ -2,9 +2,9 @@
 
 from rqt_gui_py.plugin import Plugin
 #from rosgraph_msgs.msg import Log
-import rqt_topic
+from rqt_topic.topic import Topic
 
-class ShortTopic(rqt_topic.topic.Topic):
+class ShortTopic(Topic):
 	def __init__(self, context):
 		super(ShortTopic, self).__init__(context)
 		self._widget.set_selected_topics([

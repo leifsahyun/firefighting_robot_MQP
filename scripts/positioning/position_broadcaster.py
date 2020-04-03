@@ -8,6 +8,7 @@ import math
 from sensor_msgs.msg import Imu
 
 class PositionBroadcaster:
+
 	def __init__(self):
 		#setup broadcaster
 		rospy.init_node('position_broadcaster')
@@ -31,14 +32,61 @@ class PositionBroadcaster:
 		self.transform.transform.rotation.w = quat[3]
 
 		self.broadcaster.sendTransform(self.transform)
+
+		#wheel position updates:
+		self.wheel1 = geometry_msgs.msg.TransformStamped()
+		
+		self.wheel1.header.stamp = rospy.Time.now()
+		self.wheel1.header.frame_id = "base_link"
+		self.wheel1.child_frame_id = "left_wheel"
+
+		self.wheel1.transform.translation.x = 0
+		self.wheel1.transform.translation.y = 0
+		self.wheel1.transform.translation.z = 0
+
+		self.wheel1.transform.rotation.x = quat[0]
+		self.wheel1.transform.rotation.y = quat[1]
+		self.wheel1.transform.rotation.z = quat[2]
+		self.wheel1.transform.rotation.w = quat[3]
+
+		self.broadcaster.sendTransform(self.wheel1)
+
+		self.wheel2 = geometry_msgs.msg.TransformStamped()
+		
+		self.wheel2.header.stamp = rospy.Time.now()
+		self.wheel2.header.frame_id = "base_link"
+		self.wheel2.child_frame_id = "right_wheel"
+
+		self.wheel2.transform.translation.x = 0
+		self.wheel2.transform.translation.y = 0
+		self.wheel2.transform.translation.z = 0
+
+		self.wheel2.transform.rotation.x = quat[0]
+		self.wheel2.transform.rotation.y = quat[1]
+		self.wheel2.transform.rotation.z = quat[2]
+		self.wheel2.transform.rotation.w = quat[3]
+
+		self.broadcaster.sendTransform(self.wheel2)
 		
 		#setup callback on IMU messages
 		rospy.Subscriber("IMU", Imu, self.update_position)
 		
+		r = rospy.Rate(10)
+		while not rospy.is_shutdown():
+			self.periodic()
+			r.sleep()
+		
 	def update_position(self, msg):
-		self.transform.header.stamp = rospy.Time.now()
 		self.transform.transform.rotation = msg.orientation
+
+	def periodic(self):
+		stamp = rospy.Time.now()
+		self.transform.header.stamp = stamp
+		self.wheel1.header.stamp = stamp
+		self.wheel2.header.stamp = stamp
 		self.broadcaster.sendTransform(self.transform)
+		self.broadcaster.sendTransform(self.wheel1)
+		self.broadcaster.sendTransform(self.wheel2)
 
 
 if __name__ == '__main__':

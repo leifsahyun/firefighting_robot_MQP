@@ -1,4 +1,7 @@
 <launch>
 	<param name="robot_description" textfile="$(find gui)/resource/fred-descr-v1.urdf"/>
 	<node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
+	<node name="thermal_array_converter" pkg="gui" type="thermal_array_converter.py"/>
+	<node name="obstacle_marker_pub" pkg="gui" type="obstacle_marker_pub.py"/>
+	<node name="position_broadcaster" pkg="positioning" type="position_broadcaster.py"/>
 </launch>
