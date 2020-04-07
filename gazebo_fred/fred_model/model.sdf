@@ -171,9 +171,45 @@
       <child>radar_link</child>
     </joint>
     
+    <joint type="fixed" name="camera_joint">
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+      <pose> 0 0 0 0 0 0 </pose>
+      <parent>chassis</parent>
+      <child>camera_link</child>
+    </joint>
+    
+    <joint type="fixed" name="thermal_array0_joint">
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+      <pose> 0 0 0 0 0 0 </pose>
+      <parent>chassis</parent>
+      <child>thermal_array0_link</child>
+    </joint>
+    
+    <joint type="fixed" name="thermal_array1_joint">
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+      <pose> 0 0 0 0 0 0 </pose>
+      <parent>chassis</parent>
+      <child>thermal_array1_link</child>
+    </joint>
+    
+    <joint type="fixed" name="thermal_array2_joint">
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+      <pose> 0 0 0 0 0 0 </pose>
+      <parent>chassis</parent>
+      <child>thermal_array2_link</child>
+    </joint>
+    
     <link name="radar_link">
       <collision name="collision">
-        <pose> .1524 0 .1524 0 0 0 </pose>
+        <pose> .1524 -0.02 .1524 0 0 0 </pose>
         <geometry>
           <box>
             <size>.01 .01 .01</size>
@@ -181,7 +217,7 @@
         </geometry>
       </collision>
       <visual name="visual">
-        <pose> .1524 0 .1524 0 0 0 </pose>
+        <pose> .1524 -0.02 .1524 0 0 0 </pose>
         <geometry>
           <box>
             <size>.01 .01 .01</size>
@@ -190,7 +226,7 @@
       </visual>
 
       <sensor type="ray" name="radar">
-          <pose>.1524 0 .1524 0 0 0</pose>
+          <pose>.1524 -0.02 .1524 0 0 0</pose>
           <update_rate>5</update_rate>
           <ray>
             <scan>
@@ -222,8 +258,238 @@
             <fov>0.5</fov>
             <radiation>infrared</radiation>
           </plugin>
-        </sensor>
+      </sensor>
     </link>
+
+    <link name="camera_link">
+      <collision name="collision">
+        <pose> .1524 0 .1524 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose> .1524 0 .1524 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </visual>
+      
+      <sensor type="camera" name="camera">
+          <pose>.1524 0 .1524 0 0 0</pose>
+          <update_rate>5</update_rate>
+          <camera name="camera">
+            <horizontal_fov>1.3962634</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <!-- Noise is sampled independently per pixel on each frame.
+                   That pixel's noise value is added to each of its color
+                   channels, which at that point lie in the range [0,1]. -->
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin filename="libgazebo_ros_camera.so" name="gazebo_ros_camera">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>5</updateRate>
+            <cameraName>fred/camera</cameraName>
+            <imageTopicName>camera</imageTopicName>
+            <frameName>camera_link</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+          </plugin>
+      </sensor>
+    </link>
+    
+    
+    <link name="thermal_array0_link">
+      <collision name="collision">
+        <pose> 0 .1524 .1524 0 0 1.5708 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose> 0 .1524 .1524 0 0 1.5708 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </visual>
+      
+      <sensor type="camera" name="thermal_array0">
+          <pose>0 .1524 .1524 0 0 1.5708</pose>
+          <update_rate>5</update_rate>
+          <camera name="thermal_array0">
+            <horizontal_fov>1.3962634</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin filename="libgazebo_ros_camera.so" name="gazebo_thermal_array0">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>5</updateRate>
+            <cameraName>fred/thermal_array0</cameraName>
+            <imageTopicName>thermal_array0</imageTopicName>
+            <frameName>thermal_array0_link</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+          </plugin>
+      </sensor>
+    </link>
+    
+    
+    <link name="thermal_array1_link">
+      <collision name="collision">
+        <pose> .1524 0.02 .1524 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose> .1524 0.02 .1524 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </visual>
+      
+      <sensor type="camera" name="thermal_array1">
+          <pose>.1524 0.02 .1524 0 0 0</pose>
+          <update_rate>5</update_rate>
+          <camera name="thermal_array1">
+            <horizontal_fov>1.3962634</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin filename="libgazebo_ros_camera.so" name="gazebo_thermal_array1">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>5</updateRate>
+            <cameraName>fred/thermal_array1</cameraName>
+            <imageTopicName>thermal_array1</imageTopicName>
+            <frameName>thermal_array1_link</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+          </plugin>
+      </sensor>
+    </link>
+    
+    
+    <!--
+    Will want to have this third thermal array at some point, but right now
+    there is something bad in the syntax I can't figure out and it causes
+    fred not to spawn in Gazebo
+    
+    <link name="thermal_array2_link">
+      <collision name="collision">
+        <pose> 0 -.1524 .1524 0 0 1.5708 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose> 0 -.1524 .1524 0 0 1.5708 </pose>
+        <geometry>
+          <box>
+            <size>.01 .01 .01</size>
+          </box>
+        </geometry>
+      </visual>
+      
+      <sensor type="camera" name="thermal_array2">
+          <pose>0 -.1524 .1524 0 0 1.5708</pose>
+          <update_rate>5</update_rate>
+          <camera name="thermal_array2">
+            <horizontal_fov>1.3962634</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin filename="libgazebo_ros_camera.so" name="gazebo_thermal_array2">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>5</updateRate>
+            <cameraName>fred/thermal_array2</cameraName>
+            <imageTopicName>thermal_array2</imageTopicName>
+            <frameName>thermal_array2_link</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+          </plugin>
+      </sensor>
+    </link>
+    -->
+
+
     <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
       <alwaysOn>true</alwaysOn>
       <updateRate>40</updateRate>
