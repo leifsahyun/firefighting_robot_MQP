@@ -3,7 +3,7 @@
   <model name="fred">
     <static>false</static>
     <link name='chassis'>
-      <pose>0 0 .1 0 0 0</pose>
+      <pose>0 0 .1774 0 0 0</pose>
 
       <inertial>
         <mass>7.0</mass>
@@ -40,8 +40,8 @@
           <polyline>
             <point>0 -.1524</point>
             <point>0 .1524</point>
-            <point>-.3048 0</point>
-            <height>.0762</height>
+            <point>-.1016 0</point>
+            <height>.025</height>
           </polyline>
         </geometry>
       </collision>
@@ -52,17 +52,17 @@
           <polyline>
             <point>0 -.1524</point>
             <point>0 .1524</point>
-            <point>-.3048 0</point>
-            <height>.0762</height>
+            <point>-.1016 0</point>
+            <height>.025</height>
           </polyline>
         </geometry>
       </visual>
       
       <collision name='caster_collision'>
-        <pose>-0.3862 0 -0.05 0 0 0</pose>
+        <pose>-0.229 0 -0.1012 0 0 0</pose>
         <geometry>
             <sphere>
-            <radius>.05</radius>
+            <radius>.025</radius>
           </sphere>
         </geometry>
 
@@ -79,17 +79,17 @@
       </collision>
 
       <visual name='caster_visual'>
-        <pose>-0.3862 0 -0.05 0 0 0</pose>
+        <pose>-0.229 0 -0.1012 0 0 0</pose>
         <geometry>
           <sphere>
-            <radius>.05</radius>
+            <radius>.025</radius>
           </sphere>
         </geometry>
       </visual>
     </link>
     
     <link name="left_wheel">
-      <pose>.1016 .1624 .0635 0 1.5707 1.5707</pose>
+      <pose>.1016 .1624 0.1132 0 1.5707 1.5707</pose>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -117,7 +117,7 @@
     </link>
     
     <link name="right_wheel">
-      <pose>.1016 -.1624 .0635 0 1.5707 1.5707</pose>
+      <pose>.1016 -.1624 0.1132 0 1.5707 1.5707</pose>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -145,7 +145,7 @@
     </link>
     
     <joint type="revolute" name="left_wheel_joint">
-      <pose>0 0 -0.01 0 0 0</pose>
+      <pose>0 0 0.381 0 0 0</pose>
       <child>left_wheel</child>
       <parent>chassis</parent>
       <axis>
@@ -154,7 +154,7 @@
     </joint>
 
     <joint type="revolute" name="right_wheel_joint">
-      <pose>0 0 0.01 3.14159 0 0</pose>
+      <pose>0 0 -0.381 3.14159 0 0</pose>
       <child>right_wheel</child>
       <parent>chassis</parent>
       <axis>
