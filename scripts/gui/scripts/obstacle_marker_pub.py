@@ -46,7 +46,7 @@ class ObstaclePub:
 		self.pub.publish(self.obstacle)
 
 	def update(self, msg):
-		self.obstacle.pose.position.x = msg.range
+		self.obstacle.pose.position.y = msg.range
 
 if __name__ == '__main__':
 	ObstaclePub()

@@ -86,6 +86,25 @@
           </sphere>
         </geometry>
       </visual>
+      
+      
+      <sensor name="imu_sensor" type="imu">
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <visualize>true</visualize>
+        <topic>__default_topic__</topic>
+        <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+          <topicName>imu</topicName>
+          <bodyName>chassis</bodyName>
+          <updateRateHZ>10.0</updateRateHZ>
+          <gaussianNoise>0.1</gaussianNoise> <!-- Gyro typical output noise value from datasheet -->
+          <xyzOffset>0 0 0</xyzOffset>
+          <rpyOffset>0 0 0</rpyOffset>
+          <frameName>chassis</frameName>
+        </plugin>
+        <pose>0 0 0 0 0 0</pose>
+      </sensor>
+      BNO055
     </link>
     
     <link name="left_wheel">
@@ -244,19 +263,20 @@
               </vertical>
             </scan>
             <range>
+              <!-- For some reason, these values are not being applied -->
               <min>0.20</min>
               <max>1.0</max>
               <resolution>0.001</resolution>
             </range>
           </ray>
           <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_radar">
-            <gaussianNoise>0.005</gaussianNoise>
+            <gaussianNoise>0.0015</gaussianNoise> <!-- From datasheet, standard deviation in our range is between ~0.5 and ~2.5 mm (dependent on range, but no way to account for that here) -->
             <alwaysOn>true</alwaysOn>
-            <updateRate>5</updateRate>
+            <updateRate>10</updateRate>
             <topicName>radar</topicName>
             <frameName>radar_link</frameName>
-            <fov>0.5</fov>
-            <radiation>infrared</radiation>
+            <fov>1.39626</fov> <!-- Radians from the horizontal half-power beamwidth of +/-40 degrees from datasheet -->
+            <radiation>infrared</radiation> <!-- Radiation options are only visual and infrared, no radar option. Also, don't think gazebo uses this value for anything except publishing range messages in ros -->
           </plugin>
       </sensor>
     </link>
@@ -283,10 +303,11 @@
           <pose>.1524 0 .1524 0 0 0</pose>
           <update_rate>5</update_rate>
           <camera name="camera">
-            <horizontal_fov>1.3962634</horizontal_fov>
+            <horizontal_fov>1.085595</horizontal_fov> <!-- From datasheet, converted to radians -->
             <image>
-              <width>800</width>
-              <height>800</height>
+              <!-- Height and width from our settings in the start_camera script -->
+              <width>640</width>
+              <height>480</height>
               <format>R8G8B8</format>
             </image>
             <clip>
@@ -299,7 +320,7 @@
                    That pixel's noise value is added to each of its color
                    channels, which at that point lie in the range [0,1]. -->
               <mean>0.0</mean>
-              <stddev>0.007</stddev>
+              <stddev>0.00025</stddev> <!-- Taken from pi camera documentation signal-to-noise ratio assuming signal is at maximum value of 1 -->
             </noise>
           </camera>
           <plugin filename="libgazebo_ros_camera.so" name="gazebo_ros_camera">
@@ -341,10 +362,11 @@
           <pose>0 .1524 .1524 0 0 1.5708</pose>
           <update_rate>5</update_rate>
           <camera name="thermal_array0">
-            <horizontal_fov>1.3962634</horizontal_fov>
+            <horizontal_fov>1.91986</horizontal_fov> <!-- Taken from datasheet, converted to radians -->
             <image>
-              <width>800</width>
-              <height>800</height>
+              <!-- Thermal array image size -->
+              <width>32</width>
+              <height>24</height>
               <format>R8G8B8</format>
             </image>
             <clip>
@@ -354,7 +376,7 @@
             <noise>
               <type>gaussian</type>
               <mean>0.0</mean>
-              <stddev>0.007</stddev>
+              <stddev>0.00089</stddev> <!-- Standard deviation for mean of zero based on the rms value given in datasheet for refresh rate of 4 Hz. This value divided by the number of degrees per unit of measurement based on settings of min temp 20 degrees, max temp 300 degrees, output range [0,1] -->
             </noise>
           </camera>
           <plugin filename="libgazebo_ros_camera.so" name="gazebo_thermal_array0">
@@ -396,10 +418,11 @@
           <pose>.1524 0.02 .1524 0 0 0</pose>
           <update_rate>5</update_rate>
           <camera name="thermal_array1">
-            <horizontal_fov>1.3962634</horizontal_fov>
+            <horizontal_fov>1.91986</horizontal_fov> <!-- Taken from datasheet, converted to radians -->
             <image>
-              <width>800</width>
-              <height>800</height>
+              <!-- Thermal array image size -->
+              <width>32</width>
+              <height>24</height>
               <format>R8G8B8</format>
             </image>
             <clip>
@@ -409,7 +432,7 @@
             <noise>
               <type>gaussian</type>
               <mean>0.0</mean>
-              <stddev>0.007</stddev>
+              <stddev>0.00089</stddev> <!-- Standard deviation for mean of zero based on the rms value given in datasheet for refresh rate of 4 Hz. This value divided by the number of degrees per unit of measurement based on settings of min temp 20 degrees, max temp 300 degrees, output range [0,1] -->
             </noise>
           </camera>
           <plugin filename="libgazebo_ros_camera.so" name="gazebo_thermal_array1">
@@ -428,6 +451,7 @@
       </sensor>
     </link>
     
+
     
     <!--
     Will want to have this third thermal array at some point, but right now
@@ -456,7 +480,7 @@
           <pose>0 -.1524 .1524 0 0 1.5708</pose>
           <update_rate>5</update_rate>
           <camera name="thermal_array2">
-            <horizontal_fov>1.3962634</horizontal_fov>
+            <horizontal_fov>1.91986</horizontal_fov>
             <image>
               <width>800</width>
               <height>800</height>
