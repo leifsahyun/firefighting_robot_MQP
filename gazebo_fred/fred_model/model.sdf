@@ -252,18 +252,19 @@
               <horizontal>
                 <samples>5</samples>
                 <resolution>1.0</resolution>
-                <min_angle>-0.25</min_angle>
-                <max_angle>0.25</max_angle>
+                <!-- these values are 1/2 the fov defined below -->
+                <min_angle>-0.69813</min_angle>
+                <max_angle>0.69813</max_angle>
               </horizontal>
               <vertical>
                 <samples>5</samples>
                 <resolution>1</resolution>
-                <min_angle>-0.25</min_angle>
-                <max_angle>0.25</max_angle>
+                <!-- these values are much less than the vertical fov of the radar, but in practice reflectance of the floor is too low for the radar to pick up the floor and in gazebo the floor will be picked up if it is included in the fov at all -->
+                <min_angle>-0.05</min_angle>
+                <max_angle>0.05</max_angle>
               </vertical>
             </scan>
             <range>
-              <!-- For some reason, these values are not being applied -->
               <min>0.20</min>
               <max>1.0</max>
               <resolution>0.001</resolution>
