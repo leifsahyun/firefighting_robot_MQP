@@ -105,7 +105,7 @@ double AmpsRMS = 0;
 //Allow up to 24 modules
 cell_module cell_array[24];
 int cell_array_index = -1;
-int cell_array_max = 0;
+int cell_array_max = 1;
 unsigned long next_submit;
 bool runProvisioning;
 
@@ -481,10 +481,16 @@ void loop() {
   // Read BMS data
   tcaselect(BMS);
   battery_state_msg.header.stamp = nh.now();
-  //battery_state_msg.voltage = ;      // voltage level
-  //battery_state_msg.current = ;       // current draw/supply from/to battery
-  //battery_state_msg.capacity = ;      // remaining capacity used for time alg.
-  //battery_state_msg.health = ;        // fix actual value, redundant indicator --> use temp msg
+  battery_state_msg.voltage = VRMS;      // voltage level
+  battery_state_msg.current = AmpsRMS;       // current draw/supply from/to battery
+  battery_state_msg.capacity = 5.0;      // remaining capacity used for time alg.
+  
+  if (cell_array[0].temperature > 50)
+  {
+    battery_state_msg.power_supply_health = 2;        // fix actual value, redundant indicator --> use temp msg
+  } else {
+    battery_state_msg.power_supply_health = 1;  // 1 is good, 2 is overheat
+  }
   battery_state_pub.publish(&battery_state_msg);
 
   nh.spinOnce();
