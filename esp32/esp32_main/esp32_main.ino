@@ -42,6 +42,8 @@ ros::Publisher thermal_pub1("thermal_1u", &thermal_msg);
 ros::Publisher thermal_pub2("thermal_2u", &thermal_msg);
 sensor_msgs::BatteryState battery_state_msg;
 ros::Publisher battery_state_pub("battery_state", &battery_state_msg);
+sensor_msgs::Temperature battery_temp_msg;
+ros::Publisher battery_temp_pub("battery_temp", &battery_temp_msg);
 
 // I2C lib
 #include <Wire.h>
@@ -71,7 +73,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055();
 #define TCAADDR 0x70
 
 /*                      *\
- *  BMS declarations
+    BMS declarations
 \*                      */
 // Author of original BMS code: https://github.com/stuartpittaway/diyBMS
 // Modified to work with esp32 and ROS
@@ -81,8 +83,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055();
 #include "i2c_cmds.h"
 #include "settings.h"
 /*#include "SoftAP.h"
-#include "WebServiceSubmit.h"*/
-#include <Wire.h>
+  #include "WebServiceSubmit.h"*/
 #include <time.h>
 #include <esp_timer.h>
 #include <Ticker.h>
@@ -115,24 +116,24 @@ bool max_enabled = false;
 // 0=No balancing 1=Manual balancing started 2=Auto Balancing enabled 3=Auto Balancing enabled and bypass happening 4=A module is over max voltage
 int balance_status = 2;
 
-  
+
 //Configuration for thermistor conversion
 //use the datasheet to get this data.
 //https://www.instructables.com/id/NTC-Temperature-Sensor-With-Arduino/
-float Vin=3.3;     // [V]        
-float Rt=10000;    // Resistor t [ohm]
-float R0=20000;    // value of rct in Temp0 [ohm]
-float Temp1=273.15;   // [K] in datasheet 0º C
-float Temp2=373.15;   // [K] in datasheet 100° C
-float RT1=35563;   // [ohms]  resistence in Temp1
-float RT2=549.4;     // [ohms]   resistence in Temp2
-float beta=0.0;    // initial parameters [K]
-float Rinf=0.0;    // initial parameters [ohm]   
-float Temp0=298.15;   // use Temp0 in Kelvin [K]
-float Vout=0.0;    // Vout in A0 
-float Rout=0.0;    // Rout in A0
-float TempK=0.0;   // variable output
-float TempC=0.0;   // variable output
+float Vin = 3.3;   // [V]
+float Rt = 10000;  // Resistor t [ohm]
+float R0 = 20000;  // value of rct in Temp0 [ohm]
+float Temp1 = 273.15; // [K] in datasheet 0º C
+float Temp2 = 373.15; // [K] in datasheet 100° C
+float RT1 = 35563; // [ohms]  resistence in Temp1
+float RT2 = 549.4;   // [ohms]   resistence in Temp2
+float beta = 0.0;  // initial parameters [K]
+float Rinf = 0.0;  // initial parameters [ohm]
+float Temp0 = 298.15; // use Temp0 in Kelvin [K]
+float Vout = 0.0;  // Vout in A0
+float Rout = 0.0;  // Rout in A0
+float TempK = 0.0; // variable output
+float TempC = 0.0; // variable output
 
 
 // muliplexer port assignments
@@ -141,7 +142,7 @@ float TempC=0.0;   // variable output
 #define THERMAL_2 3
 #define BME 2
 #define BNO 7
-#define BMS 4   // need to check
+#define BMS 5   
 
 // whether each sensor is online
 bool bmeOnline = false;
@@ -166,6 +167,7 @@ void setup() {
   nh.advertise(thermal_pub1);
   nh.advertise(thermal_pub2);
   nh.advertise(battery_state_pub);
+  nh.advertise(battery_temp_pub);
   nh.spinOnce(); //lets the ros node handler send data to pi
   Serial.println("ROS Publishers Initialized");
   Serial.println("\n\n");
@@ -183,7 +185,7 @@ void setup() {
   }
 
   // Set up oversampling and filter initialization
-  if(bmeOnline){
+  if (bmeOnline) {
     bme.setTemperatureOversampling(BME680_OS_8X);
     bme.setHumidityOversampling(BME680_OS_2X);
     bme.setPressureOversampling(BME680_OS_4X);
@@ -191,24 +193,24 @@ void setup() {
     bme.setGasHeater(320, 150); // 320*C for 150 ms
   }
 
-//  // range init
-//  tcaselect(RANGE);
-//  if (!lox.begin()) {
-//    // could not find IR range
-//    Serial.println("Failed to connect to IR Range");
-//    while (1);
-//  }
+  //  // range init
+  //  tcaselect(RANGE);
+  //  if (!lox.begin()) {
+  //    // could not find IR range
+  //    Serial.println("Failed to connect to IR Range");
+  //    while (1);
+  //  }
 
   // BNO init
   tcaselect(BNO);
-  if(!bno.begin())
+  if (!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.println("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
   } else {
     bnoOnline = true;
   }
-  
+
   imu_msg.orientation_covariance[0] = -1;
   imu_msg.angular_velocity_covariance[0] = -1;
   imu_msg.linear_acceleration_covariance[0] = -1;
@@ -224,7 +226,7 @@ void setup() {
   // init some constant data for ROS messages
   temp_msg.variance = 1.0;
   humid_msg.variance = 0.03;
-  
+
   const char row[4] = "row";
   thermal_msg_row.label = row;
   thermal_msg_row.size = THERMAL_SIZE;
@@ -241,21 +243,15 @@ void setup() {
   // BMS Setup
 
   myConfig.autobalance_enabled = auto_balance;
-  Serial.begin(19200);           // start serial for output
-  Serial.println();
-  Serial.println();
-  Serial.println();
-  Serial.println();
-  Serial.println();
 
   //13 is LED
   pinMode(13, OUTPUT);
   LED_OFF;
 
   //Thermistor setup
-  beta=(log(RT1/RT2))/((1/Temp1)-(1/Temp2));
-  Rinf=R0*exp(-beta/Temp0);
-  
+  beta = (log(RT1 / RT2)) / ((1 / Temp1) - (1 / Temp2));
+  Rinf = R0 * exp(-beta / Temp0);
+
   Serial.println(F("DIY BMS Controller Startup"));
 
   initWire();
@@ -272,44 +268,42 @@ void setup() {
     /* Explicitly set the ESP8266 to be a WiFi-client, otherwise, it by default,
       would try to act as both a client and an access-point and could cause
       network-issues with your other WiFi-devices on your WiFi-network. */
- /*   WiFi.mode(WIFI_STA);
-    WiFi.begin(myConfig_WIFI.wifi_ssid, myConfig_WIFI.wifi_passphrase);
-  } else {
-    //We are in initial power on mode (factory reset)
-    setupAccessPoint();
-  }*/
+  /*   WiFi.mode(WIFI_STA);
+     WiFi.begin(myConfig_WIFI.wifi_ssid, myConfig_WIFI.wifi_passphrase);
+    } else {
+     //We are in initial power on mode (factory reset)
+     setupAccessPoint();
+    }*/
 
-  scani2cBus();
 
   //Ensure we service the cell modules every 0.5 seconds
   //os_timer_setfn(&myTimer, timerCallback, NULL);
   //os_timer_arm(&myTimer, 1000, true);
-  myTicker.attach_ms(1000, timerCallback);
-  
+  //myTicker.attach_ms(1000, timerCallback);
+
 
   //Check WIFI is working and connected
   //Serial.print(F("WIFI Connecting"));
 
   //TODO: We need a timeout here in case the AP is dead!
   /*while (WiFi.status() != WL_CONNECTED)
-  {
+    {
     delay(250);
     Serial.print( WiFi.status() );
-  }
-  Serial.print(F(". Connected IP:"));
-  Serial.println(WiFi.localIP());*/
+    }
+    Serial.print(F(". Connected IP:"));
+    Serial.println(WiFi.localIP());*/
 
   //SetupManagementRedirect();
-  
+
   // init some constants for battery state, Battery: 14.4V 5Ah LiNiMnCo 26650 Battery
   battery_state_msg.present = true;  // battery is detected
   battery_state_msg.power_supply_status = 0; //POWER_SUPPLY_STATUS_UNKNOWN
-  battery_state_msg.current = 0;
   battery_state_msg.charge = 0;
-  battery_state_msg.design_capacity = 5.0;
+  battery_state_msg.design_capacity = 5000.0; // mAh
   battery_state_msg.power_supply_technology = 2; //POWER_SUPPLY_TECHNOLOGY_LION
-  
-  
+  battery_state_msg.capacity = 5000.0*(1 - (4.2- ((getVPP() / 2.0) * 0.707))/1.4);
+
   Serial.println("all sensors connected");
   Serial.println("setup complete");
 }
@@ -318,7 +312,7 @@ void setup() {
 void loop() {
 
   // read from BME sensor
-  if(bmeOnline){
+  if (bmeOnline) {
     tcaselect(BME);
     temp_msg.header.stamp = nh.now();
     humid_msg.header.stamp = nh.now();
@@ -341,47 +335,47 @@ void loop() {
 
   //range_msg.header.stamp = nh.now();
   //range_msg.radiation_type = sensor_msgs::Range::INFRARED;
-//  if (measure.RangeStatus != 4) {  // phase failures have incorrect data
-//    int range_msr = measure.RangeMilliMeter;
-//    range_msg.range = (float)range_msr;
-//    range_msg.max_range = (float)measure.RangeDMaxMilliMeter;
-//  } else {
-//
-//    range_msg.range = std::numeric_limits<float>::infinity();
-//    range_msg.max_range = 0.0;
-//  }
-//  range_pub.publish(&range_msg);
+  //  if (measure.RangeStatus != 4) {  // phase failures have incorrect data
+  //    int range_msr = measure.RangeMilliMeter;
+  //    range_msg.range = (float)range_msr;
+  //    range_msg.max_range = (float)measure.RangeDMaxMilliMeter;
+  //  } else {
+  //
+  //    range_msg.range = std::numeric_limits<float>::infinity();
+  //    range_msg.max_range = 0.0;
+  //  }
+  //  range_pub.publish(&range_msg);
 
   // BNO Readings
-  if(bnoOnline){
+  if (bnoOnline) {
     imu_msg.header.stamp = nh.now();
-    
+
     imu::Quaternion quat = bno.getQuat();
     imu_msg.orientation.x = static_cast<double>(quat.x());
     imu_msg.orientation.y = static_cast<double>(quat.y());
     imu_msg.orientation.z = static_cast<double>(quat.z());
     imu_msg.orientation.w = static_cast<double>(quat.w());
-  
+
     imu::Vector<3> angular = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
     imu_msg.angular_velocity.x = static_cast<double>(angular.x());
     imu_msg.angular_velocity.y = static_cast<double>(angular.y());
     imu_msg.angular_velocity.z = static_cast<double>(angular.z());
-    
+
     imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
     imu_msg.linear_acceleration.x = static_cast<double>(accel.x());
     imu_msg.linear_acceleration.y = static_cast<double>(accel.y());
     imu_msg.linear_acceleration.z = static_cast<double>(accel.z());
-  
+
     imu_pub.publish(&imu_msg);
   }
 
   // IR Array readings
-  if(thermalOnline){
+  if (thermalOnline) {
     MLX_read(THERMAL_0);
-    for(int j = 0; j < 768; j += THERMAL_SIZE) {
+    for (int j = 0; j < 768; j += THERMAL_SIZE) {
       thermal_msg_layout.data_offset = j;
       thermal_msg.layout = thermal_msg_layout;
-      for(int i = j; i < THERMAL_SIZE+j; i++) {
+      for (int i = j; i < THERMAL_SIZE + j; i++) {
         float temp = mlx90640To[i];
         if (temp <= 25.0) {
           temp = 25;
@@ -391,16 +385,16 @@ void loop() {
         }
         temp -= 25;
         uint8_t temp2 = static_cast<uint8_t>(temp);
-        thermal_data[i%THERMAL_SIZE] = temp2;
+        thermal_data[i % THERMAL_SIZE] = temp2;
       }
-    thermal_msg.data = thermal_data;
-    thermal_pub0.publish(&thermal_msg);
+      thermal_msg.data = thermal_data;
+      thermal_pub0.publish(&thermal_msg);
     }
     MLX_read(THERMAL_1);
-    for(int j = 0; j < 768; j += THERMAL_SIZE) {
+    for (int j = 0; j < 768; j += THERMAL_SIZE) {
       thermal_msg_layout.data_offset = j;
       thermal_msg.layout = thermal_msg_layout;
-      for(int i = j; i < THERMAL_SIZE+j; i++) {
+      for (int i = j; i < THERMAL_SIZE + j; i++) {
         float temp = mlx90640To[i];
         if (temp <= 25.0) {
           temp = 25;
@@ -410,16 +404,16 @@ void loop() {
         }
         temp -= 25;
         uint8_t temp2 = static_cast<uint8_t>(temp);
-        thermal_data[i%THERMAL_SIZE] = temp2;
+        thermal_data[i % THERMAL_SIZE] = temp2;
       }
-    thermal_msg.data = thermal_data;
-    thermal_pub1.publish(&thermal_msg);
+      thermal_msg.data = thermal_data;
+      thermal_pub1.publish(&thermal_msg);
     }
     MLX_read(THERMAL_2);
-    for(int j = 0; j < 768; j += THERMAL_SIZE) {
+    for (int j = 0; j < 768; j += THERMAL_SIZE) {
       thermal_msg_layout.data_offset = j;
       thermal_msg.layout = thermal_msg_layout;
-      for(int i = j; i < THERMAL_SIZE+j; i++) {
+      for (int i = j; i < THERMAL_SIZE + j; i++) {
         float temp = mlx90640To[i];
         if (temp <= 25.0) {
           temp = 25;
@@ -429,62 +423,63 @@ void loop() {
         }
         temp -= 25;
         uint8_t temp2 = static_cast<uint8_t>(temp);
-        thermal_data[i%THERMAL_SIZE] = temp2;
+        thermal_data[i % THERMAL_SIZE] = temp2;
       }
-    thermal_msg.data = thermal_data;
-    thermal_pub2.publish(&thermal_msg);
+      thermal_msg.data = thermal_data;
+      thermal_pub2.publish(&thermal_msg);
     }
   }
 
   // processing readings from BMS
-    if (cell_array_max > 0) {  
-       /* for ( int a = 0; a < cell_array_max; a++) {
-          Serial.print(cell_array[a].address);
-          Serial.print(':');
-          Serial.print(cell_array[a].voltage);
-          Serial.print(':');
-          Serial.print(cell_array[a].temperature);
-          Serial.print(':');
-          Serial.print(cell_array[a].bypass_status);
-          Serial.print(' ');
-        }
-        Serial.println();  */
-    
-    if ((millis() > next_submit) /*&& (WiFi.status() == WL_CONNECTED)*/) {
-        //if (myConfig.invertermon_enabled == true ) {
-          Voltage = getVPP();
-          VRMS = (Voltage/2.0) *0.707; 
-          AmpsRMS = (VRMS * 1000)/mVperAmp;
-        //}
-      
+  //if (cell_array_max > 0) {
+    /* for ( int a = 0; a < cell_array_max; a++) {
+       Serial.print(cell_array[a].address);
+       Serial.print(':');
+       Serial.print(cell_array[a].voltage);
+       Serial.print(':');
+       Serial.print(cell_array[a].temperature);
+       Serial.print(':');
+       Serial.print(cell_array[a].bypass_status);
+       Serial.print(' ');
+      }
+      Serial.println();  */
+
+    //if ((millis() > next_submit) /*&& (WiFi.status() == WL_CONNECTED)*/) {
+      //if (myConfig.invertermon_enabled == true ) {
+      Voltage = getVPP(); 
+      VRMS = (Voltage / 2.0) * 0.707;
+      AmpsRMS = (VRMS * 1000) / mVperAmp;
+      //}
+
       //emoncms.postData(myConfig, cell_array, cell_array_max);
       //influxdb.postData(myConfig, cell_array, cell_array_max);
- 
-      for (int a = 0; a < cell_array_max; a++) {
+
+      /*for (int a = 0; a < cell_array_max; a++) {
         //Serial.println(" Cell Voltage = " + String(cell_array[a].voltage));
         //Serial.println(" Max Cell Voltage = " + String(myConfig.max_voltage*1000));
-        if (cell_array[a].voltage >= myConfig.max_voltage*1000) {
-          cell_array[a].balance_target = myConfig.max_voltage*1000; 
-           max_enabled = true;
-           balance_status = 4;
-        } else if (manual_balance!= true) cell_array[a].balance_target = 0;
+        if (cell_array[a].voltage >= myConfig.max_voltage * 1000) {
+          cell_array[a].balance_target = myConfig.max_voltage * 1000;
+          max_enabled = true;
+          balance_status = 4;
+        } else if (manual_balance != true) cell_array[a].balance_target = 0;
       }
-      if (max_enabled!=true) avg_balance(); 
+      if (max_enabled != true) avg_balance();
       max_enabled = false;
 
       //Update Influxdb/emoncms every 20 seconds
       next_submit = millis() + 20000;
-    }
-  }
-  
+    }*/
+  //}
+
 
   // Read BMS data
   tcaselect(BMS);
   battery_state_msg.header.stamp = nh.now();
   battery_state_msg.voltage = VRMS;      // voltage level
   battery_state_msg.current = AmpsRMS;       // current draw/supply from/to battery
-  battery_state_msg.capacity = 5.0;      // remaining capacity used for time alg.
-  
+  battery_state_msg.charge = 5000.0*(1 - (4.2 - VRMS)/1.4);      // remaining capacity used for time alg.
+  battery_state_msg.percentage = (1 - (4.2- VRMS)/1.4);
+
   if (cell_array[0].temperature > 50)
   {
     battery_state_msg.power_supply_health = 2;        // fix actual value, redundant indicator --> use temp msg
@@ -493,13 +488,16 @@ void loop() {
   }
   battery_state_pub.publish(&battery_state_msg);
 
+  battery_temp_msg.temperature = cell_array[0].temperature;
+  battery_temp_pub.publish(&battery_temp_msg);
+  
   nh.spinOnce();
 }
 
 // initialize an MLX sensor
 void MLX_init(int port) {
   tcaselect(port);
-  if (isConnected() == false || thermalOnline==false)
+  if (isConnected() == false || thermalOnline == false)
   {
     // sensor not detected
     Serial.printf("Failed to connect to MLX %d\n", port);
@@ -528,7 +526,7 @@ void MLX_read(int port) {
   for (byte x = 0 ; x < 2 ; x++) //Read both subpages
   {
     uint16_t mlx90640Frame[834];
-    
+
     int status = MLX90640_GetFrameData(MLX90640_address, mlx90640Frame);
     if (status >= 0) {
 
@@ -537,10 +535,10 @@ void MLX_read(int port) {
 
       float tr = Ta - TA_SHIFT; //Reflected temperature based on the sensor ambient temperature
       float emissivity = 0.95;
-      
+
       MLX90640_CalculateTo(mlx90640Frame, &mlx90640[port], emissivity, tr, mlx90640To);
     }
-  //Serial.printf("%d mode: %f\n", port, (mlx90640Frame[832] & 0x1000) >> 5);
+    //Serial.printf("%d mode: %f\n", port, (mlx90640Frame[832] & 0x1000) >> 5);
   }
 }
 
@@ -561,73 +559,75 @@ void tcaselect(uint8_t i) {
 }
 
 /*                      *\
- *  BMS helper functions
-\*                      */
+    BMS helper functions
+  \*                      */
 float getVPP() {
   float result;
-  
+
   int readValue;             //value read from the sensor
   int maxValue = 0;          // store max value here
   int minValue = 1024;          // store min value here
 
-   uint32_t start_time = millis();
-   while((millis()-start_time) < 1000) //sample for 1 Sec
-   {
-       readValue = analogRead(sensorIn-ACS712shift);
+  uint32_t start_time = millis();
+  while ((millis() - start_time) < 1000) //sample for 1 Sec
+  {
+    readValue = analogRead(sensorIn - ACS712shift);
 
-       // see if you have a new maxValue
-       if (readValue > maxValue) 
-       {
-           /*record the maximum sensor value*/
-           maxValue = readValue;
-       }
-       if (readValue < minValue) 
-       {
-           /*record the maximum sensor value*/
-           minValue = readValue;
-       }
-   }
-   //Serial.println(readValue);
-   // Subtract min from max
-   result = ((maxValue - minValue) * 5.0)/1024.0;
-      
-   return result;
- }
+    // see if you have a new maxValue
+    if (readValue > maxValue)
+    {
+      /*record the maximum sensor value*/
+      maxValue = readValue;
+    }
+    if (readValue < minValue)
+    {
+      /*record the maximum sensor value*/
+      minValue = readValue;
+    }
+  }
+  //Serial.println(readValue);
+  // Subtract min from max
+  result = ((maxValue - minValue) * 5.0) / 1024.0;
+
+  return result;
+}
 
 void avg_balance() {
   uint16_t avgint = 0;
   float avgintf = 0.0;
-       
+
   if ((myConfig.autobalance_enabled == true) && (manual_balance == false)) {
-    
+
     if (cell_array_max > 0) {
-    //Work out the average 
-    float avg = 0;
-    for (int a = 0; a < cell_array_max; a++) {
-      avgintf = cell_array[a].voltage/1000.0;
-      avg += 1.0 * avgintf;
-    }
-    avg = avg / cell_array_max;
-
-    avgint = avg;
-
-    balance_status = 2;
-    
-    //Serial.println("Average cell voltage is currently : " + String(avg*1000));
-    //Serial.println("Configured balance voltage : " + String(myConfig.balance_voltage*1000));
-
-    if ( avg >= myConfig.balance_voltage )  {
-      for ( int a = 0; a < cell_array_max; a++) {
-        if (cell_array[a].voltage > avg*1000) {
-          cell_array[a].balance_target = avg*1000;
-          balance_status = 3;
-        }
-      } 
-    }  else {
+      //Work out the average
+      float avg = 0;
       for (int a = 0; a < cell_array_max; a++) {
-        command_set_bypass_voltage(cell_array[a].address,0); }}
-        } 
-  } else  balance_status = 0;    
+        avgintf = cell_array[a].voltage / 1000.0;
+        avg += 1.0 * avgintf;
+      }
+      avg = avg / cell_array_max;
+
+      avgint = avg;
+
+      balance_status = 2;
+
+      //Serial.println("Average cell voltage is currently : " + String(avg*1000));
+      //Serial.println("Configured balance voltage : " + String(myConfig.balance_voltage*1000));
+
+      if ( avg >= myConfig.balance_voltage )  {
+        for ( int a = 0; a < cell_array_max; a++) {
+          if (cell_array[a].voltage > avg * 1000) {
+            cell_array[a].balance_target = avg * 1000;
+            balance_status = 3;
+          }
+        }
+      }  else {
+        for (int a = 0; a < cell_array_max; a++) {
+          command_set_bypass_voltage(cell_array[a].address, 0);
+        }
+      }
+    }
+  } else  balance_status = 0;
 }
 
 void print_module_details(struct  cell_module *module) {
@@ -648,9 +648,9 @@ void print_module_details(struct  cell_module *module) {
 
 void check_module_quick(struct  cell_module *module) {
   module->voltage = cell_read_voltage(module->address);
-  module->temperature = tempconvert(cell_read_board_temp(module->address));   
+  module->temperature = tempconvert(cell_read_board_temp(module->address));
   module->bypass_status = cell_read_bypass_enabled_state(module->address);
- if (module->voltage >= 0 && module->voltage <= 5000) {
+  if (module->voltage >= 0 && module->voltage <= 5000) {
     if ( module->voltage > module->max_voltage || module->valid_values == false) {
       module->max_voltage = module->voltage;
     }
@@ -768,11 +768,11 @@ void scani2cBus() {
 }
 
 float tempconvert(float rawtemp) {
-  Vout=Vin*((float)(rawtemp)/1024.0); // calc for ntc
-  Rout=(Rt*Vout*(Vin-Vout));
+  Vout = Vin * ((float)(rawtemp) / 1024.0); // calc for ntc
+  Rout = (Rt * Vout * (Vin - Vout));
 
-  TempK=(beta/log(Rout/Rinf)); // calc for temperature
-  TempC=TempK-273.15;
+  TempK = (beta / log(Rout / Rinf)); // calc for temperature
+  TempC = TempK - 273.15;
 
   return TempC;
 }
