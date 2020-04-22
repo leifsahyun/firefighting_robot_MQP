@@ -6,6 +6,7 @@ import tf2_ros
 import geometry_msgs.msg
 import math
 from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Quaternion
 
 class PositionBroadcaster:
 
@@ -69,7 +70,7 @@ class PositionBroadcaster:
 		self.broadcaster.sendTransform(self.wheel2)
 		
 		#setup callback on IMU messages
-		rospy.Subscriber("IMU", Imu, self.update_position)
+		rospy.Subscriber("imu", Imu, self.update_position)
 		
 		r = rospy.Rate(10)
 		while not rospy.is_shutdown():
@@ -77,7 +78,7 @@ class PositionBroadcaster:
 			r.sleep()
 		
 	def update_position(self, msg):
-		self.transform.transform.rotation = msg.orientation
+		self.transform.transform.rotation = Quaternion(*tf.transformations.unit_vector([0, 0, msg.orientation.z, msg.orientation.w]))
 
 	def periodic(self):
 		stamp = rospy.Time.now()

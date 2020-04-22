@@ -20,8 +20,8 @@ class crit_time_node:
     def __init__(self):
         rospy.init_node('critical_time_node', anonymous=True)
         #need to check what topic the gui expects to find the critical time under
-        rospy.Subscriber("temp_intern", Temperature, self.temp_update, "intern")
-        rospy.Subscriber("temp_extern", Temperature, self.temp_update, "extern")
+        rospy.Subscriber("intern_temp_sensor", Temperature, self.temp_update, "intern")
+        rospy.Subscriber("extern_temp_sensor", Temperature, self.temp_update, "extern")
         rospy.Subscriber("battery", BatteryState, self.batt_update)
         self.pub = rospy.Publisher('critical_time', Time, queue_size=10)
         self.rate = rospy.Rate(10) # 10hz
@@ -29,12 +29,12 @@ class crit_time_node:
 
     def temp_update(self, temp_msg, source):
         if source == "intern":
-	        self.temp_in = temp_msg.val
+	        self.temp_in = temp_msg.temperature
         else:
-	        self.temp_out = temp_msg.val
+	        self.temp_out = temp_msg.temperature
         if self.temp_in is not None and self.temp_out is not None:
-	    #Change the following line to the name of the comsol estimation function
-	        heat_time_remaining = comsol_function_template.comsol_function(self.temp_in, self.temp_out)
+	        #Change the following line to the name of the comsol estimation function
+	        self.heat_time_remaining = comsol_function_template.comsol_function(self.temp_in, self.temp_out)
 
     def batt_update(self, batt_msg):
         current_time = rospy.Time.now()
@@ -45,17 +45,18 @@ class crit_time_node:
 	            self.batt_deriv = -(batt_msg.charge-self.batt_charge)/(current_time-self.last_batt_measurement).to_sec()
 	        if self.batt_deriv is not None and self.batt_deriv>0:
 	            self.batt_time_remaining = batt_msg.charge/self.batt_deriv
-	        else:
-	            self.batt_time_remaining = None
+	        #else:
+	            #self.batt_time_remaining = None
         self.batt_charge = batt_msg.charge
         self.last_batt_measurement = current_time
 
     def loop(self):
         while not rospy.is_shutdown():
 	    if self.batt_time_remaining < self.heat_time_remaining and self.batt_time_remaining is not None:
-	        self.pub.publish(rospy.Duration(batt_time_remaining))
+		t = Time(rospy.Duration(self.batt_time_remaining))
+	        self.pub.publish(Time(t))
 	    elif self.heat_time_remaining is not None:
-	        self.pub.publish(rospy.Duration(self.heat_time_remaining))
+	        self.pub.publish(Time(rospy.Duration(self.heat_time_remaining)))
 	    self.rate.sleep()
 
 #need to make a callback function for each of the topics this node will subscribe to.
