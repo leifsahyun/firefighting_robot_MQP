@@ -42,6 +42,8 @@ ros::Publisher thermal_pub1("thermal_1u", &thermal_msg);
 ros::Publisher thermal_pub2("thermal_2u", &thermal_msg);
 sensor_msgs::BatteryState battery_state_msg;
 ros::Publisher battery_state_pub("battery_state", &battery_state_msg);
+sensor_msgs::Temperature battery_temp_msg;
+ros::Publisher battery_temp_pub("battery_temp", &battery_temp_msg);
 
 // I2C lib
 #include <Wire.h>
@@ -140,7 +142,7 @@ float TempC = 0.0; // variable output
 #define THERMAL_2 3
 #define BME 2
 #define BNO 7
-#define BMS 5   // need to check
+#define BMS 5   
 
 // whether each sensor is online
 bool bmeOnline = false;
@@ -165,6 +167,7 @@ void setup() {
   nh.advertise(thermal_pub1);
   nh.advertise(thermal_pub2);
   nh.advertise(battery_state_pub);
+  nh.advertise(battery_temp_pub);
   nh.spinOnce(); //lets the ros node handler send data to pi
   Serial.println("ROS Publishers Initialized");
   Serial.println("\n\n");
@@ -296,11 +299,10 @@ void setup() {
   // init some constants for battery state, Battery: 14.4V 5Ah LiNiMnCo 26650 Battery
   battery_state_msg.present = true;  // battery is detected
   battery_state_msg.power_supply_status = 0; //POWER_SUPPLY_STATUS_UNKNOWN
-  battery_state_msg.current = 0;
   battery_state_msg.charge = 0;
-  battery_state_msg.design_capacity = 5.0;
+  battery_state_msg.design_capacity = 5000.0; // mAh
   battery_state_msg.power_supply_technology = 2; //POWER_SUPPLY_TECHNOLOGY_LION
-
+  battery_state_msg.capacity = 5000.0*(1 - (4.2- ((getVPP() / 2.0) * 0.707))/1.4);
 
   Serial.println("all sensors connected");
   Serial.println("setup complete");
@@ -444,7 +446,7 @@ void loop() {
 
     //if ((millis() > next_submit) /*&& (WiFi.status() == WL_CONNECTED)*/) {
       //if (myConfig.invertermon_enabled == true ) {
-      Voltage = getVPP();
+      Voltage = getVPP(); 
       VRMS = (Voltage / 2.0) * 0.707;
       AmpsRMS = (VRMS * 1000) / mVperAmp;
       //}
@@ -475,7 +477,8 @@ void loop() {
   battery_state_msg.header.stamp = nh.now();
   battery_state_msg.voltage = VRMS;      // voltage level
   battery_state_msg.current = AmpsRMS;       // current draw/supply from/to battery
-  battery_state_msg.capacity = 5.0;      // remaining capacity used for time alg.
+  battery_state_msg.charge = 5000.0*(1 - (4.2 - VRMS)/1.4);      // remaining capacity used for time alg.
+  battery_state_msg.percentage = (1 - (4.2- VRMS)/1.4);
 
   if (cell_array[0].temperature > 50)
   {
@@ -485,6 +488,9 @@ void loop() {
   }
   battery_state_pub.publish(&battery_state_msg);
 
+  battery_temp_msg.temperature = cell_array[0].temperature;
+  battery_temp_pub.publish(&battery_temp_msg);
+  
   nh.spinOnce();
 }
 
