@@ -1,8 +1,8 @@
 <?xml version='1.0'?>
 <launch>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find gazebo_fred)/red.world"/>
+    <arg name="world_name" value="$(find gazebo_fred)/thermal_two_family.world"/>
   </include>
-  <node name="spawn_fred" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-file $(find gazebo_fred)/fred_model/model.sdf -sdf -x 2 -y 1 -z 1 -model fred"/>
+  <node name="spawn_fred" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-file $(find gazebo_fred)/fred_model/model.sdf -sdf -x 0 -y 0 -z 1 -model fred"/>
   <!--<node name="drive" pkg="fred" type="drive.py"/>-->
 </launch>
