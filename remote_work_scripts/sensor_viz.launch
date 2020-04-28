@@ -1,0 +1,6 @@
+<launch>
+  <node name="position_broadcaster" pkg="remote_work_scripts" type="position_broadcaster.py"/>
+  <param name="robot_description" textfile="$(find gui)/resource/fred-descr-v1.urdf"/>
+  <node name="rviz" pkg="rviz" type="rviz"/>
+  <node name="range_broadcaster" pkg="remote_work_scripts" type="range_broadcaster.py"/>
+</launch>

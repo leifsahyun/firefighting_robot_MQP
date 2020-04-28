@@ -4,4 +4,5 @@
 	<node name="thermal_array_converter" pkg="gui" type="thermal_array_converter.py"/>
 	<node name="obstacle_marker_pub" pkg="gui" type="obstacle_marker_pub.py"/>
 	<node name="position_broadcaster" pkg="positioning" type="position_broadcaster.py"/>
+	<node name="crit_time_calculator" pkg="critical_time" type="critical_time.py"/>
 </launch>
